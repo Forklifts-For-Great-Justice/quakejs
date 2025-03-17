@@ -65,3 +65,11 @@ do
 	#download file
 	wget --quiet --show-progress --continue --no-clobber -O "$output_dir/$download_path/$filename" "$server/$download_path/$filename"	
 done
+
+# quakejs server looks for these files without the crc32 prefix
+(
+  cd assets
+  ln 857908472-linuxq3ademo-1.11-6.x86.gz.sh linuxq3ademo-1.11-6.x86.gz.sh 
+  ln 296843703-linuxq3apoint-1.32b-3.x86.run linuxq3apoint-1.32b-3.x86.run
+)
+
