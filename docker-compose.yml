@@ -1,0 +1,42 @@
+version: '3.8'
+networks:
+  quakening:
+services:
+  quake: &service
+    restart: unless-stopped
+    image: node:23
+    networks:
+      - quakening
+    ports: 
+      - 27960:27960
+    volumes: 
+      - ./build:/srv/quakejs/build
+      - ./assets:/srv/quakejs/assets
+      - ./base:/srv/quakejs/base
+      - ./bin:/srv/quakejs/bin
+      - ./package.json:/srv/quakejs/package.json
+      - ./node_modules:/srv/quakejs/node_modules
+    working_dir: /srv/quakejs
+    environment:
+      - QUAKE_EULA=1
+    command: sh bin/quake.sh
+  web:
+    <<: *service
+    image: python:3.12-bookworm
+    ports:
+      - 8080:8080
+    volumes:
+      - ./html:/srv/quakejs/html
+    command: sh -c 'cd html; python -mhttp.server 8080'
+  assets: 
+    <<: *service
+    ports: 
+      - 9000:9000
+    volumes:
+      - ./bin:/srv/quakejs/bin
+      - ./package.json:/srv/quakejs/package.json
+      - ./node_modules:/srv/quakejs/node_modules
+      - ./assets:/srv/quakejs/assets
+    command: /bin/sh -c 'npm i && node bin/content.js' -
+
+
