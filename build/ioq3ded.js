@@ -9637,6 +9637,10 @@ function copyTempDouble(ptr) {
   		},LoadingProgress:function (frac) {
   			console.log('loaded ' + (frac*100).toFixed(2) + '%');
   		},PromptEULA:function (callback) {
+        if (process.env.QUAKE_EULA == "1") {
+          // Accept eula if requested via env QUAKE_EULA=1
+          return callback();
+        }
   			var readline = require('readline');
   			var lines = SYSC.eula.split('\n');
   
