@@ -1,0 +1,27 @@
+
+# We need an OS base that still ships python2
+# Debian 12 ("bookworm") doesn't ship python2 anymore.
+# Note: Debian 11 goes EOL in 2026.
+# Might be worth archiving the docker image this creates somewhere before then.
+FROM debian:11
+
+RUN apt-get update
+RUN apt-get install -y python2 build-essential
+RUN apt-get install -y wget curl
+RUN apt-get install -y cmake
+
+RUN mkdir -p /tmp/build/emscripten-fastcomp
+
+ENV EMSCRIPTEN_FASTCOMP_VERSION=1.38.22
+ENV EMSCRIPTEN_VERSION=1.38.22
+
+# Build emscripten-fastcomp. This is a fork of llvm from early in Emscripten's
+# life. It's no longer needed on recent releases because Emscripten upstreamed
+# changes into LLVM. However, for older versions like we are using, the old
+# llvm fork "emscripten-fastcomp" is required.
+WORKDIR /tmp
+RUN wget https://github.com/emscripten-core/emscripten-fastcomp/archive/refs/tags/${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
+RUN tar -zxf ${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
+WORKDIR /tmp/build/emscripten-fastcomp
+RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION}
+RUN make -j1
