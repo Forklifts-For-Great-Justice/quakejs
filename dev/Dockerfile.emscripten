@@ -22,6 +22,15 @@ ENV EMSCRIPTEN_VERSION=1.38.22
 WORKDIR /tmp
 RUN wget https://github.com/emscripten-core/emscripten-fastcomp/archive/refs/tags/${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
 RUN tar -zxf ${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
+
+# TODO(sissel): Download clang and put it in /tmp/emscripten-${EMSCRIPTEN_FASTCOMP_VERSION}/tools/clang
+#
 WORKDIR /tmp/build/emscripten-fastcomp
+
+RUN wget https://releases.llvm.org/6.0.1/cfe-6.0.1.src.tar.xz
+RUN mkdir -p tools/clang
+RUN tar -xf cfe-6.0.1.src.tar.xz --strip 1 -C tools/clang 
+RUN rm cfe-6.0.1.src.tar.xz
+
 RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION}
-RUN make -j1
+RUN make
