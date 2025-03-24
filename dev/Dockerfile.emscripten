@@ -32,5 +32,5 @@ RUN mkdir -p tools/clang
 RUN tar -xf cfe-6.0.1.src.tar.xz --strip 1 -C tools/clang 
 RUN rm cfe-6.0.1.src.tar.xz
 
-RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION}
-RUN make
+RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION} -DLLVM_PARALLEL_LINK_JOBS=1
+RUN make -j12
