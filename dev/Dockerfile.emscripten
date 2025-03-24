@@ -28,9 +28,12 @@ RUN tar -zxf ${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
 WORKDIR /tmp/build/emscripten-fastcomp
 
 RUN wget https://releases.llvm.org/6.0.1/cfe-6.0.1.src.tar.xz
-RUN mkdir -p tools/clang
-RUN tar -xf cfe-6.0.1.src.tar.xz --strip 1 -C tools/clang 
+RUN mkdir -p /tmp/clang
+RUN tar -xf cfe-6.0.1.src.tar.xz --strip 1 -C /tmp/clang 
 RUN rm cfe-6.0.1.src.tar.xz
 
-RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION} -DLLVM_PARALLEL_LINK_JOBS=1
-RUN make -j12
+RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION} -DLLVM_ENABLE_PROJECTS="clang"
+RUN make
+
+RUN apt-get install -y python2
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
