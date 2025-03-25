@@ -6,13 +6,14 @@
 FROM debian:11
 
 RUN apt-get update
-RUN apt-get install -y python2 build-essential
+RUN apt-get install -y python2 clang make
+RUN apt-get remove -y gcc g++
 RUN apt-get install -y wget curl
 RUN apt-get install -y cmake
 
 RUN mkdir -p /tmp/build/emscripten-fastcomp
 
-ENV EMSCRIPTEN_VERSION=1.29.12
+ENV EMSCRIPTEN_VERSION=1.38.22
 
 # Build emscripten-fastcomp. 
 # This is a fork of llvm from early in Emscripten's life. It's no longer needed
@@ -30,16 +31,18 @@ RUN wget -O- https://github.com/Forklifts-For-Great-Justice/emscripten-fastcomp/
 RUN mkdir /tmp/clang
 RUN wget -O- https://github.com/Forklifts-For-Great-Justice/emscripten-fastcomp-clang/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx --strip-components 1 -C /tmp/clang
 
+# Version 1.38.22 seems to need clang put into the parent dir: emscripten-fastcomp/../clang
+# Version 1.29.12 seems to need clang put into the source dir: emscripten-fastcomp/tools/clang
+
 RUN apt-get install -y python2 git
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
 
 WORKDIR /tmp/build/emscripten-fastcomp
 RUN ls /tmp ; sleep 3
-RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION} -DLLVM_ENABLE_PROJECTS="clang" -DCMAKE_BUILD_TYPE=Release
-#RUN make -j6
-RUN mkdir -p tools/clang
-RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> tools/clang/emscripten-version.txt
+RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION} -DLLVM_ENABLE_PROJECTS="clang" -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD='JSBackend;X86'
+
 RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> emscripten-version.txt
+#RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> /tmp/clang/emscripten-version.txt
 
 RUN cmake --build . --parallel 4
 RUN make install DESTDIR=/tmp/llvm
@@ -54,4 +57,4 @@ RUN git clone https://github.com/begleysm/ioq3 /tmp/ioq3
 #RUN git submodule update --init
 
 WORKDIR /tmp/ioq3
-RUN echo "PATH=/tmp/z/usr/local/bin:$PATH LLVM=/tmp/z/usr/local/bin make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/" > /build.sh
+RUN echo "PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/" > /build.sh
