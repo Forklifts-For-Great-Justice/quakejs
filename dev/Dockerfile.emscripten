@@ -12,28 +12,46 @@ RUN apt-get install -y cmake
 
 RUN mkdir -p /tmp/build/emscripten-fastcomp
 
-ENV EMSCRIPTEN_FASTCOMP_VERSION=1.38.22
-ENV EMSCRIPTEN_VERSION=1.38.22
+ENV EMSCRIPTEN_VERSION=1.29.12
 
-# Build emscripten-fastcomp. This is a fork of llvm from early in Emscripten's
-# life. It's no longer needed on recent releases because Emscripten upstreamed
-# changes into LLVM. However, for older versions like we are using, the old
-# llvm fork "emscripten-fastcomp" is required.
-WORKDIR /tmp
-RUN wget https://github.com/emscripten-core/emscripten-fastcomp/archive/refs/tags/${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
-RUN tar -zxf ${EMSCRIPTEN_FASTCOMP_VERSION}.tar.gz
+# Build emscripten-fastcomp. 
+# This is a fork of llvm from early in Emscripten's life. It's no longer needed
+# on recent releases because Emscripten upstreamed changes into LLVM. However,
+# for older versions like we are using, the old llvm fork "emscripten-fastcomp"
+# is required.
+RUN wget -O- https://github.com/Forklifts-For-Great-Justice/emscripten-fastcomp/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx -C /tmp
 
-# TODO(sissel): Download clang and put it in /tmp/emscripten-${EMSCRIPTEN_FASTCOMP_VERSION}/tools/clang
-#
-WORKDIR /tmp/build/emscripten-fastcomp
+#RUN wget https://releases.llvm.org/6.0.1/cfe-6.0.1.src.tar.xz
+#RUN mkdir -p /tmp/clang
+#RUN tar -xf cfe-6.0.1.src.tar.xz --strip 1 -C /tmp/clang 
+#RUN rm cfe-6.0.1.src.tar.xz
 
-RUN wget https://releases.llvm.org/6.0.1/cfe-6.0.1.src.tar.xz
-RUN mkdir -p /tmp/clang
-RUN tar -xf cfe-6.0.1.src.tar.xz --strip 1 -C /tmp/clang 
-RUN rm cfe-6.0.1.src.tar.xz
+# Get emscripten clang fastcomp fork at the same version
+RUN mkdir /tmp/clang
+RUN wget -O- https://github.com/Forklifts-For-Great-Justice/emscripten-fastcomp-clang/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx --strip-components 1 -C /tmp/clang
 
-RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_FASTCOMP_VERSION} -DLLVM_ENABLE_PROJECTS="clang"
-RUN make
-
-RUN apt-get install -y python2
+RUN apt-get install -y python2 git
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
+
+WORKDIR /tmp/build/emscripten-fastcomp
+RUN ls /tmp ; sleep 3
+RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION} -DLLVM_ENABLE_PROJECTS="clang" -DCMAKE_BUILD_TYPE=Release
+#RUN make -j6
+RUN mkdir -p tools/clang
+RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> tools/clang/emscripten-version.txt
+RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> emscripten-version.txt
+
+RUN cmake --build . --parallel 4
+RUN make install DESTDIR=/tmp/llvm
+
+RUN wget -O- https://github.com/emscripten-core/emscripten/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx -C /tmp
+
+RUN apt-get install -y nodejs
+
+RUN git clone https://github.com/begleysm/ioq3 /tmp/ioq3
+#RUN git clone https://github.com/Forklifts-For-Great-Justice/quakejs /tmp/quakejs
+#WORKDIR /tmp/quakejs
+#RUN git submodule update --init
+
+WORKDIR /tmp/ioq3
+RUN echo "PATH=/tmp/z/usr/local/bin:$PATH LLVM=/tmp/z/usr/local/bin make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/" > /build.sh
