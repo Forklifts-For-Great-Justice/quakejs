@@ -1,19 +1,16 @@
-
 # We need an OS base that still ships python2
 # Debian 12 ("bookworm") doesn't ship python2 anymore.
 # Note: Debian 11 goes EOL in 2026.
 # Might be worth archiving the docker image this creates somewhere before then.
-FROM debian:11
+FROM debian:11 AS quakebuild-prepare
 
 RUN apt-get update
-RUN apt-get install -y python2 clang make
-RUN apt-get remove -y gcc g++
-RUN apt-get install -y wget curl
-RUN apt-get install -y cmake
+RUN apt-get install -y wget curl cmake python2 git clang make
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
 
 RUN mkdir -p /tmp/build/emscripten-fastcomp
 
-ENV EMSCRIPTEN_VERSION=1.38.22
+ENV EMSCRIPTEN_VERSION=1.13.2
 
 # Build emscripten-fastcomp. 
 # This is a fork of llvm from early in Emscripten's life. It's no longer needed
@@ -34,27 +31,58 @@ RUN wget -O- https://github.com/Forklifts-For-Great-Justice/emscripten-fastcomp-
 # Version 1.38.22 seems to need clang put into the parent dir: emscripten-fastcomp/../clang
 # Version 1.29.12 seems to need clang put into the source dir: emscripten-fastcomp/tools/clang
 
-RUN apt-get install -y python2 git
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
+# emscripten-fastcomp 1.13.x(?) has a typo in a CMakeList dependency entry
+RUN sed -ie 's/intinsics/intrinsics/' /tmp/emscripten-fastcomp-*/lib/Bitcode/NaCl/Writer/CMakeLists.txt
 
-WORKDIR /tmp/build/emscripten-fastcomp
-RUN ls /tmp ; sleep 3
-RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION} -DLLVM_ENABLE_PROJECTS="clang" -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD='JSBackend;X86'
+#RUN (cd /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION}/tools; ln -s ../../clang)
+
+# Newer versions of llvm/emscripten-fastcomp use CMake
+#WORKDIR /tmp/build/emscripten-fastcomp
+#RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION} \
+    #-DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi" \
+    #-DCMAKE_BUILD_TYPE=Release \
+    #-DLLVM_TARGETS_TO_BUILD='JSBackend;X86'\
+    #-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+    #-DCMAKE_CXX_FLAGS='-Wno-c++11-narrowing' \
+    #.
+    #-DLLVM_EXTERNAL_CLANG_SOURCE_DIR=/tmp/clang \
+
+WORKDIR /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION}
+# 1.13.x: clang must be in srcdir/tools/clang, otherwise it will fail to build
+#   clang with an error about not finding "../../Makefile"
+RUN mkdir ./tools; mv /tmp/clang tools/clang
+# For 1.13.x and older? LLVM/emscripten-fastcomp uses ./configure, not cmake?
+RUN ./configure --with-clang-srcdir=./tools/clang --enable-cxx11 --enable-targets=js,x86_64 CXXFLAGS=-Wno-c++11-narrowing
 
 RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> emscripten-version.txt
+
+FROM quakebuild-prepare AS quakebuild-compile
+
+# Hack for when the file doesn't exist, the build still needs it.
 #RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> /tmp/clang/emscripten-version.txt
 
-RUN cmake --build . --parallel 4
-RUN make install DESTDIR=/tmp/llvm
+#RUN cmake --build . --parallel 4
+# -j12 seems to work OK with 1.13.2
+RUN make -j12 VERBOSE=1
 
+FROM quakebuild-compile AS quakebuild-emscripten
+
+# 1.13.2 requires groff
+RUN apt-get install -y groff
+RUN make install DESTDIR=/tmp/llvm
 RUN wget -O- https://github.com/emscripten-core/emscripten/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx -C /tmp
+
+FROM quakebuild-emscripten  AS quakebuild-ioq3
 
 RUN apt-get install -y nodejs
 
-RUN git clone https://github.com/begleysm/ioq3 /tmp/ioq3
+RUN git clone --depth 1 https://github.com/begleysm/ioq3 /tmp/ioq3
+
 #RUN git clone https://github.com/Forklifts-For-Great-Justice/quakejs /tmp/quakejs
 #WORKDIR /tmp/quakejs
 #RUN git submodule update --init
 
 WORKDIR /tmp/ioq3
-RUN echo "PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/" > /build.sh
+
+RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-1.13.2/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-1.13.2/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
+RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-1.13.2/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-1.13.2/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
