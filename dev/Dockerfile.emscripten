@@ -74,7 +74,7 @@ RUN wget -O- https://github.com/emscripten-core/emscripten/archive/refs/tags/${E
 
 FROM quakebuild-emscripten  AS quakebuild-ioq3
 
-RUN apt-get install -y nodejs
+RUN apt-get install -y nodejs node-ws
 
 RUN git clone --depth 1 https://github.com/begleysm/ioq3 /tmp/ioq3
 
@@ -84,5 +84,9 @@ RUN git clone --depth 1 https://github.com/begleysm/ioq3 /tmp/ioq3
 
 WORKDIR /tmp/ioq3
 
-RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-${EMSCRIPTEN_VERSION}/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
-RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-${EMSCRIPTEN_VERSION}/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
+# Make emsripten's first-run config setup happen. There may be a better way to bypass this other than running the emmake tool twice
+RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-${EMSCRIPTEN_VERSION}/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= release
+
+# Build the 'release' otherwise exported functions like Z_Malloc get renamed
+# Z_MallocDebug and emscripten can't find them.
+RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-${EMSCRIPTEN_VERSION}/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= release
