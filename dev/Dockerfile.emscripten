@@ -94,7 +94,7 @@ RUN PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake true
 # Add -sLINKABLE=1 to SERVER_LDFLAGS. This is necessary to get Emscripten to
 # correctly export things via EXPORTED_FUNCTIONS. Without this, we get
 # 'unresolved symbol: Com_Printf' and stuff.
-RUN sed -ie 's/INVOKE_RUN=1/\1 -sLINKABLE=1/' Makefile
+RUN sed -i -e 's/INVOKE_RUN=1/& -sLINKABLE=1/' Makefile
 
 RUN mkdir node_modules
 
