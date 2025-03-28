@@ -1,39 +1,39 @@
-version: '3.8'
 networks:
   quakening:
 services:
   quake: &service
     restart: unless-stopped
     container_name: quake
-    image: node:23
+      #image: node:23
+    image: quakebuild
     networks:
       - quakening
     ports: 
       - 27960:27960
-    volumes: 
-      - ./build:/srv/quakejs/build
-      - ./assets:/srv/quakejs/assets
-      - ./base:/srv/quakejs/base
-      - ./bin:/srv/quakejs/bin
-      - ./package.json:/srv/quakejs/package.json
-      - ./node_modules:/srv/quakejs/node_modules
-    working_dir: /srv/quakejs
+    volumes:
+      - ./assets:/tmp/ioq3/assets
+      - ./base:/tmp/ioq3/base
+      - ./bin/quake.sh:/tmp/ioq3/quake.sh
+    working_dir: /tmp/ioq3
     environment:
       - QUAKE_EULA=1
       - QUAKE_GAME=${QUAKE_GAME:-baseq3}
-    command: sh bin/quake.sh
+    command: sh quake.sh
   web:
     <<: *service
     image: python:3.12-bookworm
     container_name: quake-web
     ports:
       - 8080:8080
+    working_dir: /srv/quakejs
     volumes:
       - ./html:/srv/quakejs/html
     command: sh -c 'cd html; python -mhttp.server 8080'
   assets: 
     <<: *service
     container_name: quake-assets
+    image: node:23
+    working_dir: /srv/quakejs
     ports: 
       - 9000:9000
     volumes:
