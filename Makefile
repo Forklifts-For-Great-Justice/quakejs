@@ -3,7 +3,7 @@ ifndef IOQ3
   #$(error Error: IOQ3 path is not set. Set IOQ3= variable to root directory of IOQ3 source tree.)
 endif
 
-default: base/hf/pak100.pk3
+default: base/hf/pak100.pk3 assets/hf/pak100.pk3
 
 setup:
 	sh html/get_assets.sh
@@ -17,7 +17,7 @@ COMPILE_ARCH=$(shell uname -m | sed -e 's/i.86/x86/' | sed -e 's/^arm.*/arm/')
 
 COMPILE_TARGET=$(COMPILE_PLATFORM)-$(COMPILE_ARCH)
 
-QVM_OBJ = $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/cgame.qvm $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/qagame.qvm $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/ui.qvm"
+QVM_OBJ = $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/cgame.qvm $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/qagame.qvm $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/ui.qvm
 
 $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/cgame.qvm: quake_and_bake
 $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/qagame.qvm: quake_and_bake
@@ -26,6 +26,7 @@ $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3/vm/ui.qvm: quake_and_bake
 quake_and_bake:
 	make -C "${IOQ3}" release TOOLS_CC=$(CC) \
 		BUILD_SERVER=0 BUILD_CLIENT=0 BUILD_GAME_SO=0 BUILD_GAME_QVM=1
+
 .PHONY: quake_and_bake
 
 test:
@@ -48,6 +49,9 @@ base/hf/pak100.pk3:
 	@[ -d "$$(dirname "$(target)")" ] || mkdir "$$(dirname "$(target)")"
 	@echo "Updating $(target) with qvm files from ${IOQ3}/build/release-$(COMPILE_TARGET)/baseq3"
 	@fullpath="$$(pwd)/$(target)"; (cd $(IOQ3)/build/release-$(COMPILE_TARGET)/baseq3; zip -Dur "$$fullpath" vm); x=$$?; [ "$$x" -eq 0 -o "$$x"  -eq 12 ] || exit $$x
+
+assets/hf/pak100.pk3: base/hf/pak100.pk3
+	cp $< $@
 
 check_ioq3:
 	[ -d "$(IOQ3)" -a -f "$(IOQ3)/code/qcommon/common.c" ] || echo "IOQ3 directory seems... wrong? Expected to find ioq3 quake source code."
