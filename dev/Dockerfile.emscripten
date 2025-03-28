@@ -10,7 +10,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
 
 RUN mkdir -p /tmp/build/emscripten-fastcomp
 
-ENV EMSCRIPTEN_VERSION=1.19.2
+ENV EMSCRIPTEN_VERSION=1.13.2
 
 # Build emscripten-fastcomp. 
 # This is a fork of llvm from early in Emscripten's life. It's no longer needed
@@ -51,10 +51,10 @@ WORKDIR /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION}
 # 1.13.x: clang must be in srcdir/tools/clang, otherwise it will fail to build
 #   clang with an error about not finding "../../Makefile"
 RUN mkdir ./tools; mv /tmp/clang tools/clang
-# For 1.13.x and older? LLVM/emscripten-fastcomp uses ./configure, not cmake?
+# For 1.19.x and older? LLVM/emscripten-fastcomp uses ./configure, not cmake?
 RUN ./configure --with-clang-srcdir=./tools/clang --enable-cxx11 --enable-targets=js,x86_64 CXXFLAGS=-Wno-c++11-narrowing
 
-RUN echo "${EMSCRIPTEN_VERSION}" >> emscripten-version.txt
+#RUN echo "${EMSCRIPTEN_VERSION}" > emscripten-version.txt
 
 FROM quakebuild-prepare AS quakebuild-compile
 
@@ -63,7 +63,7 @@ FROM quakebuild-prepare AS quakebuild-compile
 
 #RUN cmake --build . --parallel 4
 # -j12 seems to work OK with 1.13.2
-RUN make -j12 VERBOSE=1
+RUN make -j12 #VERBOSE=1
 
 FROM quakebuild-compile AS quakebuild-emscripten
 
@@ -74,7 +74,7 @@ RUN wget -O- https://github.com/emscripten-core/emscripten/archive/refs/tags/${E
 
 FROM quakebuild-emscripten  AS quakebuild-ioq3
 
-RUN apt-get install -y nodejs node-ws
+RUN apt-get install -y nodejs npm
 
 RUN git clone --depth 1 https://github.com/begleysm/ioq3 /tmp/ioq3
 
@@ -90,6 +90,17 @@ ENV EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}
 
 # Let emscripten do a first-run startup
 RUN PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake true
+
+# Add -sLINKABLE=1 to SERVER_LDFLAGS. This is necessary to get Emscripten to
+# correctly export things via EXPORTED_FUNCTIONS. Without this, we get
+# 'unresolved symbol: Com_Printf' and stuff.
+RUN sed -ie 's/INVOKE_RUN=1/\1 -sLINKABLE=1/' Makefile
+
+RUN mkdir node_modules
+
+# The debian node-ws package is far too new and is incompatible with this
+# version of emscripten
+RUN npm i ws@0.4.29
 
 # Build the 'release' otherwise exported functions like Z_Malloc get renamed
 # Z_MallocDebug and emscripten can't find them.
