@@ -10,7 +10,7 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
 
 RUN mkdir -p /tmp/build/emscripten-fastcomp
 
-ENV EMSCRIPTEN_VERSION=1.13.2
+ENV EMSCRIPTEN_VERSION=1.19.2
 
 # Build emscripten-fastcomp. 
 # This is a fork of llvm from early in Emscripten's life. It's no longer needed
@@ -54,7 +54,7 @@ RUN mkdir ./tools; mv /tmp/clang tools/clang
 # For 1.13.x and older? LLVM/emscripten-fastcomp uses ./configure, not cmake?
 RUN ./configure --with-clang-srcdir=./tools/clang --enable-cxx11 --enable-targets=js,x86_64 CXXFLAGS=-Wno-c++11-narrowing
 
-RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> emscripten-version.txt
+RUN echo "${EMSCRIPTEN_VERSION}" >> emscripten-version.txt
 
 FROM quakebuild-prepare AS quakebuild-compile
 
@@ -84,5 +84,5 @@ RUN git clone --depth 1 https://github.com/begleysm/ioq3 /tmp/ioq3
 
 WORKDIR /tmp/ioq3
 
-RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-1.13.2/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-1.13.2/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
-RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-1.13.2/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-1.13.2/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
+RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-${EMSCRIPTEN_VERSION}/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
+RUN PATH=/tmp/llvm/usr/local/bin:$PATH LLVM=/tmp/llvm/usr/local/bin /tmp/emscripten-${EMSCRIPTEN_VERSION}/emmake make PLATFORM=js EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}/ BUILD_SERVER=1 BUILD_CLIENT=0 BUILD_GAME_SO=0 Q= debug
