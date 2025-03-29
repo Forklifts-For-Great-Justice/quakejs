@@ -16,4 +16,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --platform linux/amd64 --tag issue-metrics:"$(date +%s)"
+        run: docker build . --file dev/Dockerfile --platform linux/amd64 --tag issue-metrics:"$(date +%s)"
