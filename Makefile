@@ -11,7 +11,7 @@ docker:
 
 .PHONY: setup
 setup:
-	sh html/get_assets.sh
+	bash html/get_assets.sh
 
 run:
 	docker-compose up --force-recreate --build
