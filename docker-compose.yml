@@ -6,7 +6,6 @@ services:
     container_name: quake
     build:
       context: ./dev
-      dockerfile: Dockerfile.emscripten
     image: quakebuild:latest
     networks: [ quakening ]
     ports: [ "27960:27960" ]

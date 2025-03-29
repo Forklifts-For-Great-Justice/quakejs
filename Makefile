@@ -3,13 +3,18 @@ ifndef IOQ3
   #$(error Error: IOQ3 path is not set. Set IOQ3= variable to root directory of IOQ3 source tree.)
 endif
 
-default: base/hf/pak100.pk3 assets/hf/pak100.pk3
+default: base/hf/pak100.pk3 assets/hf/pak100.pk3 docker
 
+.PHONY: docker
+docker:
+	docker build -t quakebuild ./dev
+
+.PHONY: setup
 setup:
 	sh html/get_assets.sh
 
-un:
-	docker-compose up
+run:
+	docker-compose up --force-recreate --build
 
 # These two variables copied from ioq3's Makefile
 COMPILE_PLATFORM=$(shell uname | sed -e 's/_.*//' | tr '[:upper:]' '[:lower:]' | sed -e 's/\//_/g')
