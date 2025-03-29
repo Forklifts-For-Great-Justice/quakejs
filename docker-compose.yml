@@ -19,21 +19,25 @@ services:
       - QUAKE_GAME=${QUAKE_GAME:-hf}
     command: sh bin/quake.sh
   web:
-    image: python:3.12-bookworm
+    # TODO(sissel): Add ioquake3.js from quakebuild
+    image: quakebuild
     container_name: quake-web
     working_dir: /srv/quakejs
     ports:
       - 8080:8080
     networks: [ quakening ]
+    # TODO(sissel): Copy this into the image instead of using volumes
     volumes:
       - ./html:/srv/quakejs/html
-    command: sh -c 'cd html; python3 -mhttp.server 8080'
+    command: sh -c 'cp /tmp/ioq3/build/release-js-js/ioquake3.js; cd html; python3 -mhttp.server 8080'
   assets: 
     container_name: quake-assets
     image: quake-assets
     build:
       context: ./dev
       dockerfile: ./Dockerfile.assets
+    volumes:
+      - ./base/hf:/srv/quake-assets/assets/hf
     ports: [ "9000:9000" ]
     networks: [ quakening ]
     command: /bin/sh -c 'node bin/content.js' -
