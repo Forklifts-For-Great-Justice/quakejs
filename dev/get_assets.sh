@@ -33,9 +33,9 @@ printf "Using content server: $server\n"
 #Download manifest.json and get the # of assets available
 printf "Downloading manifest.json\n"
 mkdir -p "$output_dir/assets"
-wget --quiet --show-progress --continue --no-clobber -O "$output_dir/assets/manifest.json" "$server/assets/manifest.json"
+wget --quiet --continue --no-clobber -O "$output_dir/assets/manifest.json" "$server/assets/manifest.json"
 num_elems=$(jq '. | length' "$output_dir/assets/manifest.json")
-#manifest="$(wget --quiet --show-progress --continue --no-clobber -O $server/assets/manifest.json)"
+#manifest="$(wget --quiet --continue --no-clobber -O $server/assets/manifest.json)"
 #num_elems=$(echo "$manifest" | jq '. | length')
 printf "$num_elems assets found in manifest.json\n"
 
@@ -63,7 +63,7 @@ do
 	fi
 	
 	#download file
-	wget --quiet --show-progress --continue --no-clobber -O "$output_dir/$download_path/$filename" "$server/$download_path/$filename"	
+	wget --quiet --continue --no-clobber -O "$output_dir/$download_path/$filename" "$server/$download_path/$filename"	
 done
 
 # quakejs server looks for these files without the crc32 prefix

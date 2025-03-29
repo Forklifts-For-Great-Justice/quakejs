@@ -6,6 +6,7 @@ services:
     container_name: quake
     build:
       context: ./dev
+      dockerfile: ./Dockerfile.quake
     image: quakebuild:latest
     networks: [ quakening ]
     ports: [ "27960:27960" ]
@@ -29,15 +30,12 @@ services:
     command: sh -c 'cd html; python3 -mhttp.server 8080'
   assets: 
     container_name: quake-assets
-    image: quakebuild:latest # contains nodejs
+    image: quake-assets
+    build:
+      context: ./dev
+      dockerfile: ./Dockerfile.assets
     ports: [ "9000:9000" ]
     networks: [ quakening ]
-    working_dir: /srv/quakejs
-    volumes:
-      - ./bin:/srv/quakejs/bin
-      - ./package.json:/srv/quakejs/package.json
-      - ./node_modules:/srv/quakejs/node_modules
-      - ./assets:/srv/quakejs/assets
-    command: /bin/sh -c 'npm i && node bin/content.js' -
+    command: /bin/sh -c 'node bin/content.js' -
 
 
