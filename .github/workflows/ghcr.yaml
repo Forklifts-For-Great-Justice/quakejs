@@ -1,10 +1,19 @@
-name: Publish to GHCR.io
+---
+name: Docker Image CI
 
-on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  build_tag_push_to_ghcr:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Build, Tag and Push Docker Image to GHCR
-        uses: GlueOps/github-actions-build-push-containers@main
+      - uses: actions/checkout@v4.2.2
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --platform linux/amd64 --tag issue-metrics:"$(date +%s)"
