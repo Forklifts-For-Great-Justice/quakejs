@@ -1,0 +1,122 @@
+#!/bin/sh
+#
+
+# Prerequisite: Build docker image 'quakebuild'
+#
+# Development: Compile quake server, client code, and qvm files.
+# Testing Deployment: Run quakebuild image with files built from development
+# Production Deployment: Run quakebuild image with no changes
+
+HAVE=""
+
+need() {
+  if [ "${HAVE%%*:${1}}" != "$HAVE" -o "${HAVE%%*:${1}:*}" != "$HAVE" ]; then
+    echo "Already found $1 in $HAVE" >&2
+    return 0
+  fi
+  check_$1 || fail "Missing tool: $1"
+  HAVE="${HAVE}:$1"
+  return 0
+}
+
+fail() {
+  echo "$@" >&2
+  exit 1
+}
+
+check_jq() {
+  # Is jq usable?
+  jq -e ".test == 11" > /dev/null 2>&1
+}
+
+check_docker() {
+  # Check if docker is usable.
+  docker ps -n 0 > /dev/null 2>&1
+}
+
+check_bash() {
+  bash -c 'echo "Hello world"' | grep -qF "Hello world"
+}
+
+check_zip() {
+  zip -h | grep -q 'Copyright.*Info-ZIP'
+}
+
+build_docker_images() {
+  need docker
+  need jq
+
+  docker build -f ./dev/Dockerfile.quake -t quakebuild --progress plain dev \
+    || fail "Failed to build quakebuild image from ./dev/Dockerfile.quake"
+
+  docker build -f ./dev/Dockerfile.assets -t quake-assets --progress plain dev \
+    || fail "Failed to build quake-assetes image from ./dev/Dockerfile.assets"
+
+  # Show image build time. Sometimes we may expect a new build, and the
+  # CreatedSince will tell us how old the image is. If the image didn't need to
+  # be rebuilt (according to 'docker build' then this will show in the creation
+  # time.
+  echo "Docker images:"
+  docker image ls --format json | jq -r '. | select(.Repository | test("^quake(-assets|build)$")) | "  \(.Repository):\(.Tag) (Creation time \(.CreatedSince))"'
+}
+
+run_service() {
+  need docker
+  docker compose up --force-recreate --build
+}
+
+build_pk3() {
+  need docker
+  dockerfile="Dockerfile.quakedev"
+  image="quakebuild:dev"
+
+  # This should compile the qvm files and zip them into pak100.pk3
+  docker build -f "${dockerfile}" -t "${image}" --progress plain . \
+    || fail "Failed to build from ${dockerfile} using local ./ioq3"
+  
+  # Test that the build created /tmp/pak100.pk3
+  docker run "${image}" test -f /tmp/pak100.pk3 \
+    || fail "After building, didn't find /tmp/pak100.pk3."
+
+  # Check that the right files exist. There should be 3 .qvm files in the .pk3 file.
+  docker run "${image}" unzip -l /tmp/pak100.pk3 \
+    | awk '/ vm\/(ui|cgame|qagame).qvm$/ { found++ } END { if (found != 3) exit 1 }' \
+    || fail "pak100.pk3 file is missing some files. Did the build fail?"
+
+  [ -d "base/hf" ] || mkdir base/hf
+
+  # Fetch the built QVM files out of the docker image
+  docker run "${image}" tar -cC /tmp pak100.pk3 | tar -C base/hf -xv
+  cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
+}
+
+if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
+  echo "Usage: $0 <command>"
+  cat << HELP
+  run                  - runs services in docker compose.
+      Port 8080 is html, 9000 is assets, 27690 is quake (websocket)
+      This command automatically builds any necessary docker images.
+
+
+  Development Commands:
+  build-docker-images  - builds the quake server and asset server docker images.
+  build-pk3            - builds the hf pk3 files based on code in ./ioq3
+      This allows you to build changes locally for testing. 
+HELP
+  exit 0
+fi
+
+case "$1" in 
+  build-docker-images)
+    build_docker_images
+    ;;
+  build-pk3)
+    build_pk3 "$@"
+    ;;
+  run)
+    run_service
+    ;;
+  *)
+    echo "Unknown command: $1"
+    ;;
+esac
