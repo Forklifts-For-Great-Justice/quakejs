@@ -27,6 +27,6 @@ jobs:
           tags: Forklifts-For-Great-Justice/quakebuild:latest
           context: dev
           file: dev/Dockerfile.quake
-          platforms: [ "linux/amd64" ]
+          platforms: "linux/amd64"
           cache-from: type=gha
           cache-to: type=gha,mode=max
