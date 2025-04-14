@@ -6,9 +6,9 @@
 sed -i -e 's/INVOKE_RUN=1/& -s LINKABLE=1/' Makefile
 sed -i -e 's/INVOKE_RUN=0/& -s LINKABLE=1 -g4/' Makefile
 
-# Export _trap_SendClientCommand
-sed -i -e "/EXPORTED_FUNCTIONS=/ { s/]/, '_trap_SendClientCommand']/ }" Makefile
-sed -i -e "/SYSC__deps:/ { s/]/, 'trap_SendClientCommand']/ }" code/sys/sys_common.js
+# Export syscall()
+sed -i -e "/EXPORTED_FUNCTIONS=/ { s/]/, '_Con_ToggleConsole_f']/ }" Makefile
+sed -i -e "/SYSC__deps:/ { s/]/, '_Con_ToggleConsole_f']/ }" code/sys/sys_common.js
 
 # Short-circuit EULA prompt. We accept.
 sed -i -e '/PromptEULA: function/ { s/$/ return callback();/ }' code/sys/sys_node.js

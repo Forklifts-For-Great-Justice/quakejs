@@ -26,7 +26,7 @@ fail() {
 
 check_jq() {
   # Is jq usable?
-  jq -e ".test == 11" > /dev/null 2>&1
+  echo '{ "test": 11 }' | jq -e ".test == 11" > /dev/null 2>&1
 }
 
 check_docker() {
@@ -57,7 +57,7 @@ build_docker_images() {
   # be rebuilt (according to 'docker build' then this will show in the creation
   # time.
   echo "Docker images:"
-  docker image ls --format json | jq -r '. | select(.Repository | test("^quake(-assets|build)$")) | "  \(.Repository):\(.Tag) (Creation time \(.CreatedSince))"'
+  docker image ls --format json | jq -r '. | select(.Tag == "latest" and (.Repository | test("^quake(-assets|build)$"))) | "  \(.Repository):\(.Tag) (Creation time \(.CreatedSince))"'
 }
 
 run_service() {
@@ -90,6 +90,24 @@ build_pk3() {
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
 }
 
+build_client() {
+  need docker
+  dockerfile="Dockerfile.quakedev"
+  image="quakebuild:dev"
+
+  # This should compile the qvm files and zip them into pak100.pk3
+  docker build -f "${dockerfile}" -t "${image}" --progress plain . \
+    || fail "Failed to build from ${dockerfile} using local ./ioq3"
+  
+  # Test that the build created /tmp/pak100.pk3
+  docker run "${image}" test -f build/release-js-js/ioquake3.js \
+    || fail "After building, didn't find build/release-js-js/ioquake3.js"
+
+  # Fetch the built ioquake3.js out of the docker image
+  echo "Copying ioquake3.js to html/"
+  docker run "${image}" tar -cC build/release-js-js ioquake3.js | tar -C html -xv
+}
+
 if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
   echo "Usage: $0 <command>"
   cat << HELP
@@ -112,6 +130,9 @@ case "$1" in
     ;;
   build-pk3)
     build_pk3 "$@"
+    ;;
+  build-client)
+    build_client "$@"
     ;;
   run)
     run_service

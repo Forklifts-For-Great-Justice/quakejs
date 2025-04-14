@@ -5,6 +5,8 @@ set -x
 
 export BUILD_DIR=${BUILD_DIR:=build}
 
+env PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emcc --generate-config
+
 # Build the 'release' otherwise exported functions like Z_Malloc get renamed
 # Z_MallocDebug and emscripten can't find them.
 env PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake \
