@@ -11,16 +11,16 @@ HAVE=""
 
 need() {
   if [ "${HAVE%%*:${1}}" != "$HAVE" -o "${HAVE%%*:${1}:*}" != "$HAVE" ]; then
-    echo "Already found $1 in $HAVE" >&2
+    #echo "Already found $1 in $HAVE" >&2
     return 0
   fi
-  check_$1 || fail "Missing tool: $1"
+  check_$1 || fail "$1"
   HAVE="${HAVE}:$1"
   return 0
 }
 
 fail() {
-  echo "$@" >&2
+  echo "Failure: $@" >&2
   exit 1
 }
 
@@ -36,6 +36,15 @@ check_docker() {
 
 check_bash() {
   bash -c 'echo "Hello world"' | grep -qF "Hello world"
+}
+
+check_refresh_dev() {
+  dockerfile="Dockerfile.quakedev"
+  image="quakebuild:dev"
+
+  # This should compile the qvm files and zip them into pak100.pk3
+  docker build -f "${dockerfile}" -t "${image}" --progress plain . \
+    || fail "Failed to build from ${dockerfile} using local ./ioq3"
 }
 
 check_zip() {
@@ -67,12 +76,9 @@ run_service() {
 
 build_pk3() {
   need docker
-  dockerfile="Dockerfile.quakedev"
-  image="quakebuild:dev"
+  need refresh_dev
 
-  # This should compile the qvm files and zip them into pak100.pk3
-  docker build -f "${dockerfile}" -t "${image}" --progress plain . \
-    || fail "Failed to build from ${dockerfile} using local ./ioq3"
+  image="quakebuild:dev"
   
   # Test that the build created /tmp/pak100.pk3
   docker run "${image}" test -f /tmp/pak100.pk3 \
@@ -92,13 +98,10 @@ build_pk3() {
 
 build_client() {
   need docker
-  dockerfile="Dockerfile.quakedev"
+  need refresh_dev
+
   image="quakebuild:dev"
 
-  # This should compile the qvm files and zip them into pak100.pk3
-  docker build -f "${dockerfile}" -t "${image}" --progress plain . \
-    || fail "Failed to build from ${dockerfile} using local ./ioq3"
-  
   # Test that the build created /tmp/pak100.pk3
   docker run "${image}" test -f build/release-js-js/ioquake3.js \
     || fail "After building, didn't find build/release-js-js/ioquake3.js"
@@ -108,18 +111,29 @@ build_client() {
   docker run "${image}" tar -cC build/release-js-js ioquake3.js | tar -C html -xv
 }
 
+iterate() {
+  build_client
+  build_pk3
+  docker compose restart quake assets
+}
+
 if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
   echo "Usage: $0 <command>"
   cat << HELP
   run                  - runs services in docker compose.
-      Port 8080 is html, 9000 is assets, 27690 is quake (websocket)
+      Port 8080 is html, 9000 is assets, 27690 is quake (via websocket)
       This command automatically builds any necessary docker images.
-
 
   Development Commands:
   build-docker-images  - builds the quake server and asset server docker images.
+
   build-pk3            - builds the hf pk3 files based on code in ./ioq3
       This allows you to build changes locally for testing. 
+
+  build-client         - builds the javascript client (ioquake3.js)
+      This allows you to build changes locally for testing. 
+
+  iterate              - rebuild and restart services
 HELP
   exit 0
 fi
@@ -136,6 +150,9 @@ case "$1" in
     ;;
   run)
     run_service
+    ;;
+  iterate)
+    iterate "$@"
     ;;
   *)
     echo "Unknown command: $1"
