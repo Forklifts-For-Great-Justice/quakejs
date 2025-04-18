@@ -5,7 +5,9 @@ set -x
 
 export BUILD_DIR=${BUILD_DIR:=build}
 
-env PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emcc --generate-config
+if [ ! -f "${HOME}/.emscripten" ] ; then
+  env PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emcc --generate-config
+fi
 
 # Build the 'release' otherwise exported functions like Z_Malloc get renamed
 # Z_MallocDebug and emscripten can't find them.
@@ -17,11 +19,11 @@ env PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake \
 # Patch the build
 # Remove a line that causes a crash on startup
 # Error was:
-#     /tmp/ioq3/build/release-js-js/ioq3ded.js:5320
-#             if(!window.getUserMedia) {
-#             ^
-#    
-#     ReferenceError: window is not defined
+# >   /tmp/ioq3/build/release-js-js/ioq3ded.js:5320
+# >           if(!window.getUserMedia) {
+# >           ^
+# >  
+# >   ReferenceError: window is not defined
 sed -i -e '/function Module_getUserMedia()/d' ${BUILD_DIR}/release-js-js/ioq3ded.js
 
 # emscripten incorrectly changes the name of some function variables for some reason.
