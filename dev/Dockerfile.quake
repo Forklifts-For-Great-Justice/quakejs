@@ -8,8 +8,6 @@ RUN apt-get update
 RUN apt-get install -y wget curl cmake python2 git clang make bison
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 0
 
-RUN mkdir -p /tmp/build/emscripten-fastcomp
-
 ENV EMSCRIPTEN_VERSION=1.13.2
 
 # Build emscripten-fastcomp. 
@@ -36,7 +34,7 @@ RUN sed -ie 's/intinsics/intrinsics/' /tmp/emscripten-fastcomp-*/lib/Bitcode/NaC
 
 #RUN (cd /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION}/tools; ln -s ../../clang)
 
-# Newer versions of llvm/emscripten-fastcomp use CMake
+# XXX: Commented out below, newer versions of llvm/emscripten-fastcomp use CMake
 #WORKDIR /tmp/build/emscripten-fastcomp
 #RUN cmake /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION} \
     #-DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi" \
@@ -50,10 +48,9 @@ RUN sed -ie 's/intinsics/intrinsics/' /tmp/emscripten-fastcomp-*/lib/Bitcode/NaC
 WORKDIR /tmp/emscripten-fastcomp-${EMSCRIPTEN_VERSION}
 # 1.13.x: clang must be in srcdir/tools/clang, otherwise it will fail to build
 #   clang with an error about not finding "../../Makefile"
-RUN mkdir ./tools; mv /tmp/clang tools/clang
+RUN [ -d ./tools ] || mkdir ./tools; mv /tmp/clang tools/clang
 # For 1.19.x and older? LLVM/emscripten-fastcomp uses ./configure, not cmake?
-RUN ./configure --with-clang-srcdir=./tools/clang --enable-cxx11 --enable-targets=js,x86_64 CXXFLAGS=-Wno-c++11-narrowing
-
+RUN ./configure --with-clang-srcdir=./tools/clang --enable-cxx11 --enable-targets=js,x86_64 CFLAGS=-Wno-everything CXXFLAGS=-Wno-everything
 #RUN echo "${EMSCRIPTEN_VERSION}" > emscripten-version.txt
 
 FROM quakebuild-prepare AS quakebuild-compile
@@ -62,34 +59,34 @@ FROM quakebuild-prepare AS quakebuild-compile
 #RUN echo "\"${EMSCRIPTEN_VERSION}\"" >> /tmp/clang/emscripten-version.txt
 
 #RUN cmake --build . --parallel 4
+
 # -j12 seems to work OK with 1.13.2
 RUN make -j12 #VERBOSE=1
 
 FROM quakebuild-compile AS quakebuild-emscripten
 
 # 1.13.2 requires groff
-RUN apt-get install -y groff
-RUN make install DESTDIR=/tmp/llvm
-RUN wget -qO- https://github.com/emscripten-core/emscripten/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx -C /tmp
+RUN apt-get update && apt-get install -y groff
+RUN make install DESTDIR=/opt/llvm
+RUN mkdir /opt/emscripten
+RUN wget -qO- https://github.com/emscripten-core/emscripten/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx --strip-components=1 -C /opt/emscripten
 
 FROM quakebuild-emscripten  AS quakebuild-ioq3
 
 RUN apt-get install -y nodejs npm
 
-RUN git clone --depth 1 https://github.com/begleysm/ioq3 /tmp/ioq3
+RUN echo Cloning ioq3
+RUN git clone --depth 1 https://github.com/Forklifts-For-Great-Justice/ioq3 /opt/ioq3
 
-#RUN git clone https://github.com/Forklifts-For-Great-Justice/quakejs /tmp/quakejs
-#WORKDIR /tmp/quakejs
-#RUN git submodule update --init
-
-WORKDIR /tmp/ioq3
+WORKDIR /opt/ioq3
 
 # Make emsripten's first-run config setup happen. There may be a better way to bypass this other than running the emmake tool twice
-ENV LLVM=/tmp/llvm/usr/local/bin 
-ENV EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}
+ENV LLVM=/opt/llvm/usr/local/bin 
+#ENV EMSCRIPTEN=/tmp/emscripten-${EMSCRIPTEN_VERSION}
+ENV EMSCRIPTEN=/opt/emscripten
 
 # Let emscripten do a first-run startup
-RUN PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake true
+RUN PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake --generate-config
 
 RUN mkdir node_modules
 
