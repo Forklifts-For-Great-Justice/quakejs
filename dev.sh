@@ -102,7 +102,7 @@ build_client() {
 
   image="quakebuild:dev"
 
-  # Test that the build created /tmp/pak100.pk3
+  # Test that the build created ioquake3.js
   docker run "${image}" test -f build/release-js-js/ioquake3.js \
     || fail "After building, didn't find build/release-js-js/ioquake3.js"
 
@@ -111,10 +111,26 @@ build_client() {
   docker run "${image}" tar -cC build/release-js-js ioquake3.js | tar -C html -xv
 }
 
+build_server() {
+  need docker
+  need refresh_dev
+
+  image="quakebuild:dev"
+  # Test that the build created ioq3ded.js
+  docker run "${image}" test -f build/release-js-js/ioq3ded.js \
+    || fail "After building, didn't find build/release-js-js/ioq3ded.js"
+
+  # Fetch the built ioq3ded.js out of the docker image
+  echo "Copying ioq3ded.js to build/"
+  docker run "${image}" tar -cC build/release-js-js ioq3ded.js | tar -xvC build
+}
+
 iterate() {
   build_client
   build_pk3
-  docker compose restart quake assets
+  build_server
+  docker compose down -t 1 quake assets
+  docker compose up -d quake assets
 }
 
 if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
@@ -147,6 +163,9 @@ case "$1" in
     ;;
   build-client)
     build_client "$@"
+    ;;
+  build-server)
+    build_server "$@"
     ;;
   run)
     run_service
