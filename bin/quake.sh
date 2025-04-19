@@ -1,6 +1,6 @@
 #!/bin/sh
 
-while ! curl -q -o /dev/null http://assets:9000/assets/manifest.json; do
+while ! curl -s -o /dev/null http://assets:9000/assets/manifest.json; do
   echo "Waiting on asset server to be online"
   sleep 1
 done
