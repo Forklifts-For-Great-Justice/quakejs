@@ -14,6 +14,7 @@ services:
       - ./assets:/opt/ioq3/assets
       - ./base:/opt/ioq3/base
       - ./bin:/opt/ioq3/bin
+      - ./build/ioq3ded.js:/opt/ioq3/build/release-js-js/ioq3ded.js
     working_dir: /opt/ioq3
     environment:
       - QUAKE_GAME=${QUAKE_GAME:-hf}
@@ -29,7 +30,7 @@ services:
     # TODO(sissel): Copy this into the image instead of using volumes
     volumes:
       - ./html:/srv/quakejs/html
-    command: sh -c 'cp /opt/ioq3/build/release-js-js/ioquake3.js; cd html; python3 -mhttp.server 8080'
+    command: sh -c 'cd html; python3 -mhttp.server 8080'
   assets: 
     container_name: quake-assets
     image: quake-assets
