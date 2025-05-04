@@ -92,7 +92,7 @@ build_pk3() {
   [ -d "base/hf" ] || mkdir base/hf
 
   # Fetch the built QVM files out of the docker image
-  docker run "${image}" tar -cC /tmp pak100.pk3 | tar -C base/hf -xv
+  docker run "${image}" tar -zcC /tmp pak100.pk3 | tar -C base/hf -zxv
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
 }
 
