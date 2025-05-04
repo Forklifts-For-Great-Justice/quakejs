@@ -3,6 +3,24 @@
 	<head>
 		<title>QuakeJS Local</title>
 		<link rel="stylesheet" href="game.css"></link>
+		<link rel="stylesheet" href="hf/style.css"></link>
+
+		<!-- XXX: Download any fonts to serve locally instead of using google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
+
+		<script type="text/javascript">
+			window.bowToMyFirewall = function(agghhh) {
+				console.log("Bow to my firewall!");
+				const bruce = document.getElementById("bow-to-my-firewall");
+        if (bruce.classList.contains("hide")) {
+          bruce.classList.replace("hide", "show");
+        } else {
+          bruce.classList.replace("show", "hide");
+        }
+			}
+		</script>
 		<script type="text/javascript" src="ioquake3.js"></script>
 		<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
 		<link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
@@ -83,5 +101,12 @@
 	</head>
 	<body>
 		<div id="viewport-frame"></div>
+
+    <div id="bow-to-my-firewall" class="hide">
+      <img src="hf/bruce-firewall.png">
+      <div class="talkbox">
+        Bow to my firewall!
+      </div>
+    </div>
 	</body>
 </html>
