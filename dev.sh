@@ -126,11 +126,11 @@ build_server() {
 }
 
 iterate() {
+  docker compose down -t 1 
   build_client
   build_pk3
   build_server
-  docker compose down -t 1 quake assets
-  docker compose up -d quake assets
+  docker compose up -d 
 }
 
 if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
