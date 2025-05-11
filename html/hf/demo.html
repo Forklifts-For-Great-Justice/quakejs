@@ -5,36 +5,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
+    <script src="hf.js"></script>
 
-		<script type="text/javascript">
-			window.bowToMyFirewall = function() {
-				console.log("Bow to my firewall!");
-				const bruce = document.getElementById("bow-to-my-firewall");
-        if (bruce.classList.contains("hide")) {
-          bruce.classList.replace("hide", "show");
-        } else {
-          bruce.classList.replace("show", "hide");
-        }
-			}
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("trigger").addEventListener("click", () => { Shenanigans.BowToMyFirewall.begin() });
+      });
+    </script>
 
-      document.addEventListener("DOMContentLoaded", (event) => { 
-        console.log("DOMContentLoader", event);
-        document.getElementById("trigger").addEventListener("click", (event) => {
-          bowToMyFirewall("Aghhh!");
-        });
-        
-        setTimeout(bowToMyFirewall, 1000);
-      })
-		</script>
   </head>
   <body>
-    <div id="bow-to-my-firewall" class="hide">
-      <img src="bruce-firewall.png">
-      <div class="talkbox">
-        Bow to my firewall!
-      </div>
-    </div>
-
     <button id="trigger">Bow to my firewall</button>
   </body>
 </html>

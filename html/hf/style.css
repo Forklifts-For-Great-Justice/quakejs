@@ -1,3 +1,8 @@
+html {
+  width: 100%;
+  height: 100%;
+}
+
 .show {
   visibility: visible;
   opacity: 1;
@@ -9,7 +14,7 @@
   opacity: 0;
 }
 
-#bow-to-my-firewall {
+talk-box {
   position: fixed;
 
   left: 0;
@@ -25,7 +30,7 @@
   animation: shake-horizontal-normal 500ms linear 1s infinite normal both; 
 }
 
-#bow-to-my-firewall img {
+talk-box img {
   position: absolute;
   left: 40px;
   top: -2em;
