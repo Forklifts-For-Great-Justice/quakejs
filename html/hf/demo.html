@@ -9,12 +9,34 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("trigger").addEventListener("click", () => { Shenanigans.BowToMyFirewall.begin() });
+        let count = 0;
+        document.getElementById("trigger").addEventListener("click", () => { 
+          if (count % 2 == 0) {
+            //Shenanigans.BowToMyFirewall.begin();
+            document.getElementById("you-are-being-hacked").classList.replace("show", "hide");
+            document.getElementById("bow-to-my-firewall").classList.replace("hide", "show");
+          } else {
+            //Shenanigans.BowToMyFirewall.end();
+            document.getElementById("you-are-being-hacked").classList.replace("hide", "show");
+            document.getElementById("bow-to-my-firewall").classList.replace("show", "hide");
+          }
+          count++;
+        });
       });
     </script>
 
   </head>
   <body>
     <button id="trigger">Bow to my firewall</button>
+
+    <div id="you-are-being-hacked" class="talk-box hide">
+      <img class="portrait" src="alert.svg"">
+      <div class="content">You are being hacked!</div>
+    </div>
+
+    <div id="bow-to-my-firewall" class="talk-box show">
+      <img class="portrait" src="bruce-firewall.png">
+      <div class="content">Bow to my firewall!</div>
+    </div>
   </body>
 </html>
