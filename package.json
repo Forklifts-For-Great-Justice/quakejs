@@ -28,5 +28,9 @@
     "winston": "2.4.0",
     "wrench": "~1.5.4",
     "ws": "~0.4.29"
+  },
+  "devDependencies": {
+    "coffeescript": "^2.7.0",
+    "jest": "^29.7.0"
   }
 }

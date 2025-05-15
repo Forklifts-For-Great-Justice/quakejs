@@ -150,6 +150,10 @@ if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
       This allows you to build changes locally for testing. 
 
   iterate              - rebuild and restart services
+
+  coffee               - Compile coffeescripts and watch for code changes.
+
+  coffee-test          - Run tests and watch for code changes.
 HELP
   exit 0
 fi
@@ -172,6 +176,12 @@ case "$1" in
     ;;
   iterate)
     iterate "$@"
+    ;;
+  coffee)
+    npm exec coffee -- --watch --compile --output html/coffee -M html/src
+    ;;
+  coffee-test)
+    npm exec jest -- --watch
     ;;
   *)
     echo "Unknown command: $1"
