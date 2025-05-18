@@ -1,0 +1,15 @@
+FROM quakebuild
+
+RUN apt-get install -y zip unzip
+
+RUN apt-get install -y entr
+
+ADD dev/build-quake.sh /tmp
+
+ADD ioq3/Makefile /opt/ioq3/Makefile
+
+
+RUN --mount=type=bind,source=./ioq3/code,target=/opt/ioq3/code,readonly  \
+  sh /tmp/build-quake.sh 
+
+RUN cd build/release-js-js/baseq3; zip -Dr /tmp/pak100.pk3 vm
