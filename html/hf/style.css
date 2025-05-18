@@ -43,7 +43,7 @@ html {
   position: absolute;
   height: 150px;
   max-width: 130px;
-  left: 40px;
+  left: 20px;
   top: -2em;
   filter: drop-shadow(2px 2px 5px orange);
 }
@@ -55,9 +55,6 @@ html {
   border-radius: 10px;
   box-shadow: 0px 0px 30px 0px rgba(255,46,123,0.9);
   /* height: 2em; */
-}
-
-#bow-to-my-firewall > .content {
 }
 
 .talk-box > .content {
