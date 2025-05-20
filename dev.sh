@@ -182,7 +182,7 @@ case "$1" in
     ;;
   tsc-test)
     # mocha --watch and --node-option=watch don't seem to work with typescript. They crash.
-    npm exec mocha -- html/src/shenanigans
+    npm exec mocha -- shenanigans
     ;;
   *)
     echo "Unknown command: $1"
