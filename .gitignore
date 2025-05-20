@@ -1,4 +1,6 @@
-.
 assets/
 assets_src/
 node_modules/
+base/**/*.pk3
+html/hf/shenanigans/**/*.js
+html/hf/shenanigans/**/*.js.map

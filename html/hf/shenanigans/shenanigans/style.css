@@ -8,10 +8,9 @@ html {
 * animation shake-horizontal-normal
 * ----------------------------------------
 */
-@keyframes shake-horizontal-normal {0%, 100% { transform: translateX(0) translateY(0); } 10%, 30%, 50%, 70% { transform: translateX(-2px) translateY(-2px); } 20%, 40%, 60% { transform: translateX(2px); } 80% { transform: translateX(2px); } 90% { transform: translateX(-2px);} }
-
+@keyframes shake {0%, 100% { transform: translateX(0) translateY(0); } 10%, 30%, 50%, 70% { transform: translateX(-3px) translateY(-3px); } 20%, 40%, 60% { transform: translateX(2px); } 80% { transform: translateX(2px); } 90% { transform: translateX(-2px);} }
 .shake {
-  animation: shake-horizontal-normal 500ms linear 1s infinite normal both; 
+  animation: shake 500ms linear 1s infinite normal both; 
 }
 
 .talk-box {

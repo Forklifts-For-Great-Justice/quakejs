@@ -5,20 +5,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
-    <script src="hf.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "shenanigans/Utils": "/hf/shenanigans/Utils.js",
+          "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/BowToMyFirewall.js"
+        }
+      }
+    </script>
 
-    <script>
+    <script type="module">
+      import * as BowToMyFirewall from "shenanigans/bow-to-my-firewall";
+
+      BowToMyFirewall.Setup();
+
       document.addEventListener("DOMContentLoaded", () => {
         let count = 0;
         document.getElementById("trigger").addEventListener("click", () => { 
           if (count % 2 == 0) {
-            //Shenanigans.BowToMyFirewall.begin();
-            document.getElementById("you-are-being-hacked").classList.replace("show", "hide");
-            document.getElementById("bow-to-my-firewall").classList.replace("hide", "show");
+            BowToMyFirewall.Begin();
           } else {
-            //Shenanigans.BowToMyFirewall.end();
-            document.getElementById("you-are-being-hacked").classList.replace("hide", "show");
-            document.getElementById("bow-to-my-firewall").classList.replace("show", "hide");
+            BowToMyFirewall.End();
           }
           count++;
         });
@@ -29,14 +36,5 @@
   <body>
     <button id="trigger">Bow to my firewall</button>
 
-    <div id="you-are-being-hacked" class="talk-box hide">
-      <img class="portrait" src="alert.svg"">
-      <div class="content">[ HACK IN PROGRESS ]</div>
-    </div>
-
-    <div id="bow-to-my-firewall" class="talk-box show">
-      <img class="portrait" src="bruce-firewall.png">
-      <div class="content">Bow to my firewall!</div>
-    </div>
   </body>
 </html>
