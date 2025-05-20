@@ -151,9 +151,9 @@ if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
 
   iterate              - rebuild and restart services
 
-  coffee               - Compile coffeescripts and watch for code changes.
+  tsc                  - Compile typescript and watch for code changes.
 
-  coffee-test          - Run tests and watch for code changes.
+  tsc-test             - Run tests and watch for code changes.
 HELP
   exit 0
 fi
@@ -177,11 +177,12 @@ case "$1" in
   iterate)
     iterate "$@"
     ;;
-  coffee)
-    npm exec coffee -- --watch --compile --output html/coffee -M html/src
+  tsc)
+    npm exec tsc -- --watch
     ;;
-  coffee-test)
-    npm exec jest -- --watch
+  tsc-test)
+    # mocha --watch and --node-option=watch don't seem to work with typescript. They crash.
+    npm exec mocha -- html/src/shenanigans
     ;;
   *)
     echo "Unknown command: $1"
