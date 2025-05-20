@@ -38,6 +38,7 @@
     "chai": "^5.2.0",
     "coffeescript": "^2.7.0",
     "mocha": "^11.4.0",
+    "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
