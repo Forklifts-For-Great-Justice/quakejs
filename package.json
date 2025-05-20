@@ -1,6 +1,7 @@
 {
   "name": "quakejs",
   "version": "0.0.1",
+  "type": "module",
   "bin": {
     "quakejs-content": "bin/content.js",
     "quakejs-master": "bin/master.js",
@@ -30,7 +31,14 @@
     "ws": "~0.4.29"
   },
   "devDependencies": {
+    "@types/chai": "^5.2.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.18",
+    "better-assert": "^1.0.2",
+    "chai": "^5.2.0",
     "coffeescript": "^2.7.0",
-    "jest": "^29.7.0"
+    "mocha": "^11.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
