@@ -57,6 +57,12 @@ html {
   /* height: 2em; */
 }
 
+#bow-to-my-firewall > .content {
+  content: "";
+  background-image: url("/hf/shenanigans/bow-to-my-firewall/splatter.png");
+  background-size: contain;
+}
+
 .talk-box > .content {
   padding: 1em;
   padding-left: 170px;
