@@ -2,7 +2,7 @@
   "include": [ "html/src/**/*.ts" ],
   "compilerOptions": {
     "target": "esnext",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "esnext",                                /* Specify what module code is generated. */
+    "module": "NodeNext",                                /* Specify what module code is generated. */
     "moduleResolution": "nodenext",
     "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
     "outDir": "html/hf/shenanigans/",                                   /* Specify an output folder for all emitted files. */
