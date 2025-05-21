@@ -12,7 +12,15 @@
 
 		<!-- If you need to access a module from the browser devtools, you can use
 				`await import(<path>)` on the browser dev console, at least on Chrome/Webkit -->
-		<script type="module" src="coffee/shenanigans/ConsoleTakeover.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "shenanigans/Utils": "/hf/shenanigans/Utils.js",
+          "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/index.js",
+          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js"
+        }
+      }
+    </script>
 
 		<script type="text/javascript" src="ioquake3.js"></script>
 		<link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
@@ -85,32 +93,26 @@
 				var args = ['+set', 'fs_cdn', document.location.hostname + ':9000', '+connect', document.location.hostname + ':27960']; //custom args list targeting a local content server and local game server both at the address 'quakejs'
 				args.push.apply(args, getQueryCommands());
 
-				// Patch SDL to allow disabling input
-				SDL._originalReceiveEvent = SDL.receiveEvent;
-
-				window.disableInput = false;
-				SDL.receiveEvent = (event) => {
-					console.log("Patched received event: ", event);
-					if (window.disableInput) {
-						return false;
-					}
-
-					return SDL._originalReceiveEvent(event)
-				}
-
 				ioq3.callMain(args);
 			};
 		</script>
+		<script type="module">
+				console.log("Module setup");
+				import { hookSDL } from "/hf/shenanigans/Utils.js"
+				import { Setup, Begin } from "/hf/shenanigans/console-takeover/index.js"
+				SDL.receiveEvent = hookSDL(SDL.receiveEvent);
+				const button = document.getElementById("tryme");
+
+				Setup();
+				button.addEventListener("click", () => {
+					console.log("Click");
+					Begin();
+				});
+		</script>
 	</head>
 	<body>
-		<div id="viewport-frame"></div>
-		<!-- <iframe id="viewport2-frame" loading="lazy" sandbox="allow-pointer-lock allow-scripts allow-same-origin" src="index.html"></iframe> -->
 
-    <div id="bow-to-my-firewall" class="hide">
-      <img src="hf/bruce-firewall.png">
-      <div class="talkbox">
-        Bow to my firewall!
-      </div>
-    </div>
+		<div id="viewport-frame"></div>
+		<button id="tryme" style=" position: fixed; left: 0; top: 0;">Console Takeover</button>
 	</body>
 </html>

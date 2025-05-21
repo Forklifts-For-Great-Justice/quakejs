@@ -42,11 +42,24 @@ export class FakeKeyboardEvent {
   preventDefault() { return false; }
 }
 
+var allowInput = true;
 // The default receiveEvent should call SDL.
-export let receiveEvent = (event: FakeKeyboardEvent) => {
+export let receiveEvent = (event: FakeKeyboardEvent, insist = false) => {
   // Under Emscripten, most events (keyboard, mouse, etc) are sent to SDL.receiveEvent,
   // So we can invoke that here with our own event objects to fake event input.
-  SDL.receiveEvent(event);
+  if (allowInput || (!allowInput && insist)) {
+    sdlReceiveEvent(event);
+  }
+}
+
+export function rejectInput(value: boolean) {
+  allowInput = !value;
+}
+
+var sdlReceiveEvent: (event: FakeKeyboardEvent) => void;
+export function hookSDL(fn: (event: FakeKeyboardEvent) => void) {
+  sdlReceiveEvent = fn;
+  return receiveEvent;
 }
 
 export const originalReceiveEvent = receiveEvent;
@@ -78,7 +91,7 @@ export function sendKey(key: string|number, state: KeyState) {
   // accept it. Duck typing is fun.
   const kev = new FakeKeyboardEvent(state, key)
 
-  receiveEvent(kev)
+  receiveEvent(kev, true)
 }
 
 export async function sendTyping(text: (string|string[]), keyRate = 50) {

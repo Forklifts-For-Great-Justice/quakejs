@@ -9,25 +9,24 @@
       {
         "imports": {
           "shenanigans/Utils": "/hf/shenanigans/Utils.js",
-          "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/BowToMyFirewall.js"
+          "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/index.js",
+          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js"
         }
       }
     </script>
 
     <script type="module">
       import * as BowToMyFirewall from "shenanigans/bow-to-my-firewall";
+      import * as ConsoleTakeover from "shenanigans/console-takeover";
 
-      BowToMyFirewall.Setup();
+      ConsoleTakeover.Setup();
 
       document.addEventListener("DOMContentLoaded", () => {
-        let count = 0;
+        const ops = [ ConsoleTakeover.Begin, ConsoleTakeover.End ]
         document.getElementById("trigger").addEventListener("click", () => { 
-          if (count % 2 == 0) {
-            BowToMyFirewall.Begin();
-          } else {
-            BowToMyFirewall.End();
-          }
-          count++;
+          const op = ops.shift()
+          ops.push(op);
+          op();
         });
       });
     </script>
