@@ -125,3 +125,9 @@ export function closeConsole() {
   const KEYCATCH_CONSOLE = 0x0001; // From ioq3's q_shared.h
 	_Key_SetCatcher( _Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
 }
+
+declare function _Com_Printf(... args: any[]): void;
+export function Com_Printf(...args: string[]) {
+  const cargs = args.map((arg) => CString(arg));
+  _Com_Printf(...cargs);
+}

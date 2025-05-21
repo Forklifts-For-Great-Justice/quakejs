@@ -31,10 +31,19 @@ export async function Begin(aagghhh: Aagghhh) {
   Utils.rejectInput(true)
   await Utils.sleep(2000);
   Utils.openConsole();
+
   Utils.sendKey(3, Utils.KeyState.Down); // ctrl+c
   Utils.sendKey(3, Utils.KeyState.Up); // ctrl+c
+
   await Utils.sleep(200);
+  await Utils.sendTyping("/clear\r", 0);
+  await Utils.sendTyping("/say HELP I AM BEING HACKED\r", 0);
+  await Utils.sleep(1000);
+  Utils.Com_Printf("===               ===\n");
+  Utils.Com_Printf("=== BE NOT AFRAID ===\n");
+  Utils.Com_Printf("===               ===\n");
   await Utils.sendTyping("/kill\r", 1000);
+  Utils.Com_Printf("===      ;)       ===\n");
   await Utils.sleep(1000);
   Utils.closeConsole();
   End();
