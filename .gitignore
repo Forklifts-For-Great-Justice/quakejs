@@ -4,3 +4,4 @@ node_modules/
 base/**/*.pk3
 html/hf/shenanigans/**/*.js
 html/hf/shenanigans/**/*.js.map
+base/hf/games.log
