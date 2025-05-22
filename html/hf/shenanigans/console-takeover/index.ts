@@ -40,8 +40,14 @@ export async function Begin(aagghhh: Aagghhh) {
   await Utils.sendTyping("/say HELP I AM BEING HACKED\r", 0);
   await Utils.sleep(1000);
   Utils.Com_Printf("===               ===\n");
-  Utils.Com_Printf("=== BE NOT AFRAID ===\n");
-  Utils.Com_Printf("===               ===\n");
+  Utils.Com_Printf(`
+ |\\_/|    
+ (. .)
+  =w= (\\  
+ / ^ \\//  
+(|| ||)
+,""_""_ .\n`);
+  
   await Utils.sendTyping("/kill\r", 1000);
   Utils.Com_Printf("===      ;)       ===\n");
   await Utils.sleep(1000);
