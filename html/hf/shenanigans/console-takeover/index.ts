@@ -28,7 +28,7 @@ export async function Begin(aagghhh: Aagghhh) {
     element.classList.remove("hide");
   }
 
-  Utils.rejectInput(true)
+  Utils.rejectInput();
   await Utils.sleep(2000);
   Utils.openConsole();
 
@@ -54,7 +54,7 @@ export async function Begin(aagghhh: Aagghhh) {
   Utils.closeConsole();
   End();
 
-  Utils.rejectInput(false)
+  Utils.acceptInput();
 }
 
 export function End() {

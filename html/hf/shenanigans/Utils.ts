@@ -52,8 +52,12 @@ export let receiveEvent = (event: FakeKeyboardEvent, insist = false) => {
   }
 }
 
-export function rejectInput(value: boolean) {
-  allowInput = !value;
+export function rejectInput() {
+  allowInput = false;
+}
+
+export function acceptInput() {
+  allowInput = true;
 }
 
 var sdlReceiveEvent: (event: FakeKeyboardEvent) => void;
