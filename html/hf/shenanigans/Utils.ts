@@ -110,19 +110,19 @@ export async function sendTyping(text: (string|string[]), keyRate = 50) {
   }
 }
 
-// These should be exported by Emscripten at build-time. Define them so TypeScript knows about them.
+// These should be exported by Emscripten at build-time.
+// Define them so TypeScript knows about them.
 declare function _Key_SetCatcher(mask: number): void;
 declare function _Key_GetCatcher(): number;
 
+const KEYCATCH_CONSOLE = 0x0001; // From ioq3's q_shared.h
 export function openConsole() {
   // See ioq3's Con_ToggleConsole_f from cl_console.c for implementation details.
-  const KEYCATCH_CONSOLE = 0x0001; // From ioq3's q_shared.h
 	_Key_SetCatcher( _Key_GetCatcher( ) | KEYCATCH_CONSOLE );
 }
 
 export function closeConsole() {
   // See ioq3's Con_ToggleConsole_f from cl_console.c for implementation details.
-  const KEYCATCH_CONSOLE = 0x0001; // From ioq3's q_shared.h
 	_Key_SetCatcher( _Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
 }
 
