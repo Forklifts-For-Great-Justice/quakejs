@@ -5,12 +5,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
+
     <script type="importmap">
       {
         "imports": {
           "shenanigans/Utils": "/hf/shenanigans/Utils.js",
           "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/index.js",
-          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js"
+          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js",
+					"shenanigans/mirror-image": "/hf/shenanigans/mirror-image/index.js",
+          "shenanigans/bsod": "/hf/shenanigans/bsod/index.js"
         }
       }
     </script>
@@ -18,13 +21,13 @@
     <script type="module">
       import * as BowToMyFirewall from "shenanigans/bow-to-my-firewall";
       import * as ConsoleTakeover from "shenanigans/console-takeover";
-
-      ConsoleTakeover.Setup();
+      import * as MirrorImage from "shenanigans/mirror-image";
 
       document.addEventListener("DOMContentLoaded", () => {
-        const ops = [ ConsoleTakeover.Begin, ConsoleTakeover.End ]
+        const ops = [ MirrorImage.Begin, MirrorImage.End ]
         document.getElementById("trigger").addEventListener("click", () => { 
           const op = ops.shift()
+          console.log(op);
           ops.push(op);
           op();
         });
@@ -34,6 +37,6 @@
   </head>
   <body>
     <button id="trigger">Bow to my firewall</button>
-
+    <img src="/hf/shenanigans/quake-test-background.jpg" alt="Quake Test Background" id="viewport-frame">
   </body>
 </html>

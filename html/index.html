@@ -17,7 +17,8 @@
         "imports": {
           "shenanigans/Utils": "/hf/shenanigans/Utils.js",
           "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/index.js",
-          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js"
+          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js",
+		  "shenanigans/mirror-image": "/hf/shenanigans/mirror-image/index.js",
           "shenanigans/bsod": "/hf/shenanigans/bsod/index.js"
         }
       }
@@ -100,11 +101,12 @@
 		<script type="module">
 				console.log("Module setup");
 				import { hookSDL } from "/hf/shenanigans/Utils.js"
-				import { Setup, Begin } from "/hf/shenanigans/bsod/index.js"
 				SDL.receiveEvent = hookSDL(SDL.receiveEvent);
-				const button = document.getElementById("tryme");
 
-				Setup();
+				const button = document.getElementById("tryme");
+				// import { Setup, Begin } from "/hf/shenanigans/bsod/index.js"
+				import { Begin } from "shenanigans/mirror-image";
+
 				button.addEventListener("click", () => {
 					console.log("Click");
 					Begin();
