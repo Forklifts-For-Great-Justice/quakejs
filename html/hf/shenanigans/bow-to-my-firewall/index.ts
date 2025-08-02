@@ -8,8 +8,8 @@ export function Setup () {
   }
 
   const html = `<div id="${elementId}" class="talk-box hide">
-      <img class="portrait" src="/hf/shenanigans/bow-to-my-firewall/bruce-firewall.png">
       <div class="content">Bow to my firewall!</div>
+      <img class="portrait" src="/hf/shenanigans/bow-to-my-firewall/bruce-firewall.png">
     </div>`;
 
   const fragment = document.createRange().createContextualFragment(html);

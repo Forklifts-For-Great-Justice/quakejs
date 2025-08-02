@@ -86,17 +86,17 @@ body > img#viewport-frame {
 
 #bow-to-my-firewall {
   border: 2px solid rgba(128,10,128,0.8);
-  background-color: rgba(70,70,70,0.6);
-  color: white;
+  background-color: rgba(205, 84, 84, 0.6);
+  backdrop-filter: blur(3px) invert(20%) grayscale();
+  color: rgb(227, 227, 227);
   border-radius: 10px;
   box-shadow: 0px 0px 30px 0px rgba(255,46,123,0.9);
   /* height: 2em; */
 }
 
 #bow-to-my-firewall > .content {
-  content: "";
-  background-image: url("/hf/shenanigans/bow-to-my-firewall/splatter.png");
-  background-size: contain;
+  /* background-image: url("/hf/shenanigans/bow-to-my-firewall/splatter.png"); */
+  /* background-size: contain; */
 }
 
 .talk-box > .content {

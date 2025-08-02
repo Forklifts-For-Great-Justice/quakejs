@@ -60,7 +60,10 @@ export function acceptInput() {
   allowInput = true;
 }
 
-var sdlReceiveEvent: (event: FakeKeyboardEvent) => void;
+var sdlReceiveEvent: (event: FakeKeyboardEvent) => void = function(event: FakeKeyboardEvent) {
+  console.log("SDL receiveEvent called without hook", event);
+}
+
 export function hookSDL(fn: (event: FakeKeyboardEvent) => void) {
   sdlReceiveEvent = fn;
   return receiveEvent;
@@ -91,7 +94,7 @@ export function sendKey(key: string|number, state: KeyState) {
     }
   }
 
-  // Fake a KeyboardEvent well enough that Emscripten's SDL implementaiton will
+  // Fake a KeyboardEvent well enough that Emscripten's SDL implementation will
   // accept it. Duck typing is fun.
   const kev = new FakeKeyboardEvent(state, key)
 
@@ -122,16 +125,29 @@ declare function _Key_GetCatcher(): number;
 const KEYCATCH_CONSOLE = 0x0001; // From ioq3's q_shared.h
 export function openConsole() {
   // See ioq3's Con_ToggleConsole_f from cl_console.c for implementation details.
-	_Key_SetCatcher( _Key_GetCatcher( ) | KEYCATCH_CONSOLE );
+  if (typeof _Key_GetCatcher == "function") {
+    _Key_SetCatcher( _Key_GetCatcher( ) | KEYCATCH_CONSOLE );
+  } else {
+    console.warn("openConsole does nothing: likely running outside of Emscripten");
+  }
 }
 
 export function closeConsole() {
   // See ioq3's Con_ToggleConsole_f from cl_console.c for implementation details.
-	_Key_SetCatcher( _Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
+  if (typeof _Key_GetCatcher == "function") {
+    _Key_SetCatcher( _Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
+  } else {
+    console.warn("closeConsole does nothing: likely running outside of Emscripten");
+  }
 }
 
 declare function _Com_Printf(... args: any[]): void;
 export function Com_Printf(...args: string[]) {
-  const cargs = args.map((arg) => CString(arg));
-  _Com_Printf(...cargs);
+  if (typeof allocate == "function") {
+    const cargs = args.map((arg) => CString(arg));
+    _Com_Printf(...cargs);
+  } else {
+    console.log("Com_Printf", ...args);
+  }
+
 }

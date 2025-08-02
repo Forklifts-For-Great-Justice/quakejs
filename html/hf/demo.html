@@ -24,7 +24,9 @@
       import * as MirrorImage from "shenanigans/mirror-image";
 
       document.addEventListener("DOMContentLoaded", () => {
-        const ops = [ MirrorImage.Begin, MirrorImage.End ]
+        BowToMyFirewall.Setup();
+        //const ops = [ MirrorImage.Begin, MirrorImage.End ]
+        const ops = [ BowToMyFirewall.Begin, BowToMyFirewall.End ];
         document.getElementById("trigger").addEventListener("click", () => { 
           const op = ops.shift()
           console.log(op);
