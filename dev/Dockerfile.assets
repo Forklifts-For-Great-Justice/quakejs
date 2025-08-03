@@ -13,7 +13,7 @@ FROM base_assets
 RUN apt-get install -y git nodejs npm
 RUN git clone --depth 1 https://github.com/Forklifts-For-Great-Justice/quakejs.git 
 
-RUN cp quakejs/package.json .
+RUN cp quakejs/dev/assets-package.json ./package.json
 RUN npm i
 
 RUN mkdir bin; cp quakejs/bin/content.js bin
