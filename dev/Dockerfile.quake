@@ -99,3 +99,6 @@ RUN sh /tmp/patch-quake.sh
 
 ADD build-quake.sh /tmp
 RUN sh /tmp/build-quake.sh
+
+RUN mkdir bin
+ADD quake.sh /opt/ioq3/bin/quake.sh
