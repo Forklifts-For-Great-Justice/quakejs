@@ -11,10 +11,10 @@ services:
     networks: [ quakening ]
     ports: [ "27960:27960" ]
     volumes: 
-      - ./assets:/opt/ioq3/assets
-      - ./base:/opt/ioq3/base
-      - ./bin:/opt/ioq3/bin
-      - ./build/ioq3ded.js:/opt/ioq3/build/release-js-js/ioq3ded.js
+      - ./assets:/opt/ioq3/assets:z
+      - ./base:/opt/ioq3/base:z
+      #- ./bin:/opt/ioq3/bin:z,ro
+      - ./build/ioq3ded.js:/opt/ioq3/build/release-js-js/ioq3ded.js:z,ro
     working_dir: /opt/ioq3
     environment:
       - QUAKE_GAME=${QUAKE_GAME:-hf}
@@ -29,7 +29,7 @@ services:
     networks: [ quakening ]
     # TODO(sissel): Copy this into the image instead of using volumes
     volumes:
-      - ./html:/srv/quakejs/html
+      - ./html:/srv/quakejs/html:z,ro
     command: sh -c 'cd html; python3 -mhttp.server 8080'
   assets: 
     container_name: quake-assets
@@ -38,7 +38,7 @@ services:
       context: ./dev
       dockerfile: ./Dockerfile.assets
     volumes:
-      - ./base/hf:/srv/quake-assets/assets/hf
+      - ./base/hf:/srv/quake-assets/assets/hf:z,ro
     ports: [ "9000:9000" ]
     networks: [ quakening ]
     command: /bin/sh -c 'node bin/content.js' -
