@@ -8,6 +8,7 @@
 # Production Deployment: Run quakebuild image with no changes
 
 HAVE=""
+set -e
 
 need() {
   if [ "${HAVE%%*:${1}}" != "$HAVE" -o "${HAVE%%*:${1}:*}" != "$HAVE" ]; then
@@ -101,9 +102,12 @@ build_pk3() {
 
   # Fetch the built QVM files out of the docker image
   docker run "${image}" tar -zcC /tmp pak100.pk3 | tar -C base/hf -zxv
-  [ ! -d assets/hf ] && mkdir assets/hf
 
+  # TODO(sissel): Do we need an 'assets' directory anymore?
+  [ ! -d assets/hf ] && mkdir assets/hf
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
+
+  (cd hf; sh buildpak3.sh) && cp hf/build/pak101.pk3 base/hf/pak101.pk3
 }
 
 build_client() {
