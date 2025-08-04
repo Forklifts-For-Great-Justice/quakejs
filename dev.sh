@@ -102,6 +102,7 @@ build_pk3() {
   # Fetch the built QVM files out of the docker image
   docker run "${image}" tar -zcC /tmp pak100.pk3 | tar -C base/hf -zxv
   [ ! -d assets/hf ] && mkdir assets/hf
+
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
 }
 
@@ -139,6 +140,9 @@ iterate() {
   build_client
   build_pk3
   build_server
+
+  npm exec tsc
+
   docker compose up -d 
 }
 
