@@ -3,6 +3,8 @@
 set -e
 set -x
 
+MAKE_JOBS="${MAKE_JOBS:-12}"
+
 export BUILD_DIR=${BUILD_DIR:=build}
 
 if [ ! -f "${HOME}/.emscripten" ] ; then
@@ -13,8 +15,8 @@ fi
 # Z_MallocDebug and emscripten can't find them.
 env PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake \
   make PLATFORM=js EMSCRIPTEN=${EMSCRIPTEN} \
-    BUILD_SERVER=1 BUILD_CLIENT=1 BUILD_GAME_SO=0 \
-    release -j12
+    BUILD_SERVER=1 BUILD_CLIENT=1 BUILD_GAME_QVM=1 BUILD_GAME_SO=0 \
+    release -j${MAKE_JOBS}
 
 # Patch the build
 # Remove a line that causes a crash on startup

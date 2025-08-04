@@ -42,8 +42,16 @@ check_refresh_dev() {
   dockerfile="Dockerfile.quakedev"
   image="quakebuild:dev"
 
+  # A plain git clone will have every file having basically the same modification time
+  # This messes with make(1) because it thinks gram.y is newer than gram.c, so
+  # it tries to rebuild gram.c, but our version of yacc doesn't work with this
+  # file. Let's touch the file to ensure it's 'newer'
+  if [ ! ioq3/code/tools/lcc/lburg/gram.c -nt ioq3/code/tools/lcc/lburg/gram.y ] ; then
+    touch ioq3/code/tools/lcc/lburg/gram.c
+  fi
+
   # This should compile the qvm files and zip them into pak100.pk3
-  docker build -f "${dockerfile}" -t "${image}" --progress plain . \
+  docker build -f "${dockerfile}" -t "${image}" --build-arg MAKE_JOBS=1 --progress plain . \
     || fail "Failed to build from ${dockerfile} using local ./ioq3"
 }
 
@@ -93,6 +101,7 @@ build_pk3() {
 
   # Fetch the built QVM files out of the docker image
   docker run "${image}" tar -zcC /tmp pak100.pk3 | tar -C base/hf -zxv
+  [ ! -d assets/hf ] && mkdir assets/hf
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
 }
 
