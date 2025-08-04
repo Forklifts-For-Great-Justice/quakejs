@@ -1,6 +1,6 @@
 {
-  "include": [ "html/hf/shenanigans/**/*.ts" ],
-  "exclude": [ "html/hf/shenanigans/**/*.test.ts" ],
+  "include": [ "hf/shenanigans/**/*.ts" ],
+  "exclude": [ "hf/shenanigans/**/*.test.ts" ],
   "compilerOptions": {
     "target": "esnext",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "module": "NodeNext",                                /* Specify what module code is generated. */
