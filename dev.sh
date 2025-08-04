@@ -110,6 +110,8 @@ build_pk3() {
   (cd hf; sh buildpak3.sh) && cp hf/build/pak101.pk3 base/hf/pak101.pk3
 }
 
+
+
 build_client() {
   need docker
   need refresh_dev
@@ -139,14 +141,19 @@ build_server() {
   docker run "${image}" tar -cC build/release-js-js ioq3ded.js | tar -xvC build
 }
 
+build_shenanigans() {
+  tar -c --exclude '*.ts' hf/shenanigans | tar -vx -C ./html
+
+  npm exec tsc
+}
+
 iterate() {
   docker compose down -t 1 
   build_client
   build_pk3
   build_server
 
-  npm exec tsc
-
+  build_shenanigans
   docker compose up -d 
 }
 
@@ -193,6 +200,9 @@ case "$1" in
     ;;
   iterate)
     iterate "$@"
+    ;;
+  build-shenanigans)
+    build_shenanigans
     ;;
   tsc)
     npm exec tsc -- --watch
