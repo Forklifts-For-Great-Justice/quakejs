@@ -15,7 +15,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4.2.2
       - run: |
-          sh hf/buildpak3.sh
+          sh -x hf/buildpak3.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
