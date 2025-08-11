@@ -11,36 +11,31 @@ fi
 build="build"
 pakfile="pak101.pk3"
 
-updated=0
-
 prepare() {
   source="$1"
   target="${build}/$2"
-  flags="-vp"
-  [ ! -d "$(dirname "$target")" ] && flags="$flags -D"
 
-  if [ "$source" -nt "$target" ] ; then
-    updated=1
-    install $flags "$source" "$target"
-  fi
+  [ ! -d "$(dirname "$target")" ] && mkdir -p "$(dirname "$target")"
+  cp -pu "$source" "$target"
 }
 
 package() {
+  set +e
   (
     cd "${build}"
-    set +e
     zip -Dur "${pakfile}" . -x "${pakfile}"
-    code=$?
-    if [ "$code" -ne 0 -a "$code" -ne 12 ] ; then
-      exit "$code"
-    fi
   )
+  code=$?
+  set -e
 
-  if [ "$updated" -eq 0 ] ; then
-    echo "=> ${build}/${pakfile} already up to date"
-  else
-    echo "=> ${build}/${pakfile} created"
-  fi
+  case "$code" in
+    0) echo "=> ${build}/${pakfile} created" ;;
+    12) echo "=> ${build}/${pakfile} already up to date" ;;
+    *) 
+      echo "=> zip failed, exit code $code"
+      exit "$code"
+      ;;
+  esac
 }
 
 # "Bow to my firewall!" instead of the original "Quad damage!" voice
