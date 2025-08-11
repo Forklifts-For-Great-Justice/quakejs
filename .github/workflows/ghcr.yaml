@@ -16,6 +16,15 @@ permissions:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        context: [ dev ]
+        include:
+        - dockerfile: "dev/Dockerfile.quake"
+          name: quake
+        - dockerfile: "dev/Dockerfile.assets"
+          name: assets
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -28,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.registry }}/${{ github.repository }}
+          images: ${{ env.registry }}/${{ github.repository }}/${{ matrix.name }}
 
       - name: Log in to the Container registry
         if: ${{ github.event_name == 'push' }}
@@ -38,14 +47,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: ${{ format('Build{0}Docker image', github.event_name == 'push' && '+Push ', ' ') }}
+      - name: ${{ format('{0} - Build{1}Docker image', matrix.name, (github.event_name == 'push' && '+Push ' || ' ')) }}
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: "linux/amd64"
-          context: dev
-          file: dev/Dockerfile.quake
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
