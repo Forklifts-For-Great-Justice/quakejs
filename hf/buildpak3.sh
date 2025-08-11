@@ -1,6 +1,13 @@
 #!/bin/sh
 
 set -e
+
+if [ "$(basename "$0")" != "$0" ] ; then
+  dir="$(dirname "$0")"
+  echo "=> cd $dir"
+  cd "$dir"
+fi
+
 build="build"
 pakfile="pak101.pk3"
 
