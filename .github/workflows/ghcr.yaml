@@ -18,12 +18,13 @@ jobs:
   build:
     strategy:
       matrix:
-        context: [ dev ]
         include:
         - dockerfile: "dev/Dockerfile.quake"
           name: quake
+          context: dev
         - dockerfile: "dev/Dockerfile.assets"
           name: assets
+          context: dev
 
     runs-on: ubuntu-latest
     steps:
@@ -47,7 +48,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: ${{ format('{0} - Build{1}Docker image', matrix.name, (github.event_name == 'push' && '+Push ' || ' ')) }}
+      - name: ${{ format('Build{0}Docker image', (github.event_name == 'push' && '+Push ' || ' ')) }}
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' }}
