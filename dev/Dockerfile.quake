@@ -71,12 +71,17 @@ RUN make install DESTDIR=/opt/llvm
 RUN mkdir /opt/emscripten
 RUN wget -qO- https://github.com/emscripten-core/emscripten/archive/refs/tags/${EMSCRIPTEN_VERSION}.tar.gz | tar -zx --strip-components=1 -C /opt/emscripten
 
-FROM quakebuild-emscripten  AS quakebuild-ioq3
+#FROM quakebuild-emscripten  AS quakebuild-ioq3
+FROM debian:11 AS quakebuild-ioq3
+COPY --from=quakebuild-emscripten /opt/llvm /opt/llvm
+COPY --from=quakebuild-emscripten /opt/emscripten /opt/emscripten
 
-RUN apt-get install -y nodejs npm
+#RUN make install DESTDIR=/opt/llvm
 
-RUN echo Cloning ioq3
-RUN git clone --depth 1 https://github.com/Forklifts-For-Great-Justice/ioq3 /opt/ioq3
+RUN apt-get update
+RUN apt-get install -y nodejs npm git python2 make bison curl
+
+RUN echo Cloning ioq3; git clone --depth 1 https://github.com/Forklifts-For-Great-Justice/ioq3 /opt/ioq3
 
 WORKDIR /opt/ioq3
 
@@ -88,11 +93,9 @@ ENV EMSCRIPTEN=/opt/emscripten
 # Let emscripten do a first-run startup
 RUN PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake --generate-config
 
-RUN mkdir node_modules
-
 # The debian node-ws package is far too new and is incompatible with this
 # version of emscripten
-RUN npm i ws@0.4.29
+RUN mkdir node_modules && npm i ws@0.4.29
 
 ADD patch-quake.sh /tmp
 RUN sh /tmp/patch-quake.sh
