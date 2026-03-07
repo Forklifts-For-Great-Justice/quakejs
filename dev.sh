@@ -27,12 +27,12 @@ fail() {
 
 check_jq() {
   # Is jq usable?
-  echo '{ "test": 11 }' | jq -e ".test == 11" > /dev/null 2>&1
+  echo '{ "test": 11 }' | jq -e ".test == 11" >/dev/null 2>&1
 }
 
 check_docker() {
   # Check if docker is usable.
-  docker ps -n 0 > /dev/null 2>&1
+  docker ps -n 0 >/dev/null 2>&1
 }
 
 check_bash() {
@@ -47,28 +47,34 @@ check_refresh_dev() {
   # This messes with make(1) because it thinks gram.y is newer than gram.c, so
   # it tries to rebuild gram.c, but our version of yacc doesn't work with this
   # file. Let's touch the file to ensure it's 'newer'
-  if [ ! ioq3/code/tools/lcc/lburg/gram.c -nt ioq3/code/tools/lcc/lburg/gram.y ] ; then
+  if [ ! ioq3/code/tools/lcc/lburg/gram.c -nt ioq3/code/tools/lcc/lburg/gram.y ]; then
     touch ioq3/code/tools/lcc/lburg/gram.c
   fi
 
   # This should compile the qvm files and zip them into pak100.pk3
-  docker build -f "${dockerfile}" -t "${image}" --build-arg MAKE_JOBS=1 --progress plain . \
-    || fail "Failed to build from ${dockerfile} using local ./ioq3"
+  docker build -f "${dockerfile}" -t "${image}" --build-arg MAKE_JOBS=1 --progress plain . ||
+    fail "Failed to build from ${dockerfile} using local ./ioq3"
 }
 
 check_zip() {
   zip -h | grep -q 'Copyright.*Info-ZIP'
 }
 
+check_ioq3dedjs() {
+  if [ ! -f build/ioq3ded.js ]; then
+    build_server || fail "Failed to build quake3 server code (ioq3ded.js)"
+  fi
+}
+
 build_docker_images() {
   need docker
   need jq
 
-  docker build -f ./dev/Dockerfile.quake -t quakebuild --progress plain dev \
-    || fail "Failed to build quakebuild image from ./dev/Dockerfile.quake"
+  docker build -f ./dev/Dockerfile.quake -t quakebuild --progress plain dev ||
+    fail "Failed to build quakebuild image from ./dev/Dockerfile.quake"
 
-  docker build -f ./dev/Dockerfile.assets -t quake-assets --progress plain dev \
-    || fail "Failed to build quake-assetes image from ./dev/Dockerfile.assets"
+  docker build -f ./dev/Dockerfile.assets -t quake-assets --progress plain dev ||
+    fail "Failed to build quake-assetes image from ./dev/Dockerfile.assets"
 
   # Show image build time. Sometimes we may expect a new build, and the
   # CreatedSince will tell us how old the image is. If the image didn't need to
@@ -80,6 +86,7 @@ build_docker_images() {
 
 run_service() {
   need docker
+  need ioq3dedjs
   docker compose up --force-recreate --build
 }
 
@@ -88,15 +95,15 @@ build_pk3() {
   need refresh_dev
 
   image="quakebuild:dev"
-  
+
   # Test that the build created /tmp/pak100.pk3
-  docker run "${image}" test -f /tmp/pak100.pk3 \
-    || fail "After building, didn't find /tmp/pak100.pk3."
+  docker run "${image}" test -f /tmp/pak100.pk3 ||
+    fail "After building, didn't find /tmp/pak100.pk3."
 
   # Check that the right files exist. There should be 3 .qvm files in the .pk3 file.
-  docker run "${image}" unzip -l /tmp/pak100.pk3 \
-    | awk '/ vm\/(ui|cgame|qagame).qvm$/ { found++ } END { if (found != 3) exit 1 }' \
-    || fail "pak100.pk3 file is missing some files. Did the build fail?"
+  docker run "${image}" unzip -l /tmp/pak100.pk3 |
+    awk '/ vm\/(ui|cgame|qagame).qvm$/ { found++ } END { if (found != 3) exit 1 }' ||
+    fail "pak100.pk3 file is missing some files. Did the build fail?"
 
   [ -d "base/hf" ] || mkdir base/hf
 
@@ -107,10 +114,11 @@ build_pk3() {
   [ ! -d assets/hf ] && mkdir assets/hf
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
 
-  (cd hf; sh buildpak3.sh) && cp hf/build/pak101.pk3 base/hf/pak101.pk3
+  (
+    cd hf
+    sh buildpak3.sh
+  ) && cp hf/build/pak101.pk3 base/hf/pak101.pk3
 }
-
-
 
 build_client() {
   need docker
@@ -119,8 +127,8 @@ build_client() {
   image="quakebuild:dev"
 
   # Test that the build created ioquake3.js
-  docker run "${image}" test -f build/release-js-js/ioquake3.js \
-    || fail "After building, didn't find build/release-js-js/ioquake3.js"
+  docker run "${image}" test -f build/release-js-js/ioquake3.js ||
+    fail "After building, didn't find build/release-js-js/ioquake3.js"
 
   # Fetch the built ioquake3.js out of the docker image
   echo "Copying ioquake3.js to html/"
@@ -133,9 +141,10 @@ build_server() {
 
   image="quakebuild:dev"
   # Test that the build created ioq3ded.js
-  docker run "${image}" test -f build/release-js-js/ioq3ded.js \
-    || fail "After building, didn't find build/release-js-js/ioq3ded.js"
+  docker run "${image}" test -f build/release-js-js/ioq3ded.js ||
+    fail "After building, didn't find build/release-js-js/ioq3ded.js"
 
+  [ ! -d "build" ] && mkdir build
   # Fetch the built ioq3ded.js out of the docker image
   echo "Copying ioq3ded.js to build/"
   docker run "${image}" tar -cC build/release-js-js ioq3ded.js | tar -xvC build
@@ -148,18 +157,18 @@ build_shenanigans() {
 }
 
 iterate() {
-  docker compose down -t 1 
+  docker compose down -t 1
   build_client
   build_pk3
   build_server
 
   build_shenanigans
-  docker compose up -d 
+  docker compose up -d
 }
 
 if [ "$#" -eq 0 -o "$1" = "--help" -o "$1" = "-h" ]; then
   echo "Usage: $0 <command>"
-  cat << HELP
+  cat <<HELP
   run                  - runs services in docker compose.
       Port 8080 is html, 9000 is assets, 27690 is quake (via websocket)
       This command automatically builds any necessary docker images.
@@ -182,36 +191,36 @@ HELP
   exit 0
 fi
 
-case "$1" in 
-  build-docker-images)
-    build_docker_images
-    ;;
-  build-pk3)
-    build_pk3 "$@"
-    ;;
-  build-client)
-    build_client "$@"
-    ;;
-  build-server)
-    build_server "$@"
-    ;;
-  run)
-    run_service
-    ;;
-  iterate)
-    iterate "$@"
-    ;;
-  build-shenanigans)
-    build_shenanigans
-    ;;
-  tsc)
-    npm exec tsc -- --watch
-    ;;
-  tsc-test)
-    # mocha --watch and --node-option=watch don't seem to work with typescript. They crash.
-    npm exec mocha 
-    ;;
-  *)
-    echo "Unknown command: $1"
-    ;;
+case "$1" in
+build-docker-images)
+  build_docker_images
+  ;;
+build-pk3)
+  build_pk3 "$@"
+  ;;
+build-client)
+  build_client "$@"
+  ;;
+build-server)
+  build_server "$@"
+  ;;
+run)
+  run_service
+  ;;
+iterate)
+  iterate "$@"
+  ;;
+build-shenanigans)
+  build_shenanigans
+  ;;
+tsc)
+  npm exec tsc -- --watch
+  ;;
+tsc-test)
+  # mocha --watch and --node-option=watch don't seem to work with typescript. They crash.
+  npm exec mocha
+  ;;
+*)
+  echo "Unknown command: $1"
+  ;;
 esac
