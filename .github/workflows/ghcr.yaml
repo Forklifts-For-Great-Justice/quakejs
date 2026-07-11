@@ -22,9 +22,9 @@ jobs:
         - dockerfile: "dev/Dockerfile.quake"
           name: quake
           context: dev
-        - dockerfile: "dev/Dockerfile.assets"
-          name: assets
-          context: dev
+        #- dockerfile: "dev/Dockerfile.assets"
+          #name: assets
+          #context: dev
 
     runs-on: ubuntu-latest
     steps:
