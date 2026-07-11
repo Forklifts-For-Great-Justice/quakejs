@@ -73,8 +73,11 @@ build_docker_images() {
   docker build -f ./dev/Dockerfile.quake -t quakebuild --progress plain dev ||
     fail "Failed to build quakebuild image from ./dev/Dockerfile.quake"
 
-  docker build -f ./dev/Dockerfile.assets -t quake-assets --progress plain dev ||
-    fail "Failed to build quake-assetes image from ./dev/Dockerfile.assets"
+  #docker build -f ./dev/Dockerfile.assets -t quake-assets --progress plain dev ||
+    #fail "Failed to build quake-assetes image from ./dev/Dockerfile.assets"
+	docker pull ghcr.io/forklifts-for-great-justice/quakejs/assets:main ||
+    fail "Failed to fetch quake assets image from forklifts-for-great-justice"
+	docker tag ghcr.io/forklifts-for-great-justice/quakejs/assets:main quake-assets
 
   # Show image build time. Sometimes we may expect a new build, and the
   # CreatedSince will tell us how old the image is. If the image didn't need to
