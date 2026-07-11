@@ -33,10 +33,7 @@ services:
     command: sh -c 'cd html; python3 -mhttp.server 8080'
   assets: 
     container_name: quake-assets
-    image: quake-assets
-    build:
-      context: ./dev
-      dockerfile: ./Dockerfile.assets
+    image: ghcr.io/forklifts-for-great-justice/quakejs/assets:main
     volumes:
       - ./base/hf:/srv/quake-assets/assets/hf:z,ro
     ports: [ "9000:9000" ]
