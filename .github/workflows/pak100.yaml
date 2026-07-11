@@ -38,7 +38,7 @@ jobs:
             -f ./dev/Dockerfile.quake -t quakebuild dev
 
       - name: Refresh Dev
-        run: sh dev.sh build_pk3
+        run: sh dev.sh build-pk3
       
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
