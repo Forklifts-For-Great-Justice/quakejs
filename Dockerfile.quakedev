@@ -10,7 +10,9 @@ ADD ioq3/Makefile /opt/ioq3/Makefile
 
 ARG MAKE_JOBS=12
 
-RUN --mount=type=bind,source=./ioq3/code,target=/opt/ioq3/code,readonly \
-  env MAKE_JOBS=${MAKE_JOBS} sh /tmp/build-quake.sh 
+ADD ioq3/code /opt/ioq3/code
+#RUN --mount=type=bind,source=./ioq3/code,target=/opt/ioq3/code,readonly \
+
+RUN env MAKE_JOBS=${MAKE_JOBS} sh /tmp/build-quake.sh 
 
 RUN cd build/release-js-js/baseq3; zip -Dr /tmp/pak100.pk3 vm
