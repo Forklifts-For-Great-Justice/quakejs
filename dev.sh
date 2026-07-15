@@ -114,7 +114,7 @@ build_pk3() {
   docker run "${image}" tar -zcC /tmp pak100.pk3 | tar -C base/hf -zxv
 
   # TODO(sissel): Do we need an 'assets' directory anymore?
-  [ ! -d assets/hf ] && mkdir assets/hf
+  [ ! -d assets/hf ] && mkdir -p assets/hf
   cp -v base/hf/pak100.pk3 assets/hf/pak100.pk3
 
   (
