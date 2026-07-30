@@ -71,17 +71,20 @@ npm exec mocha
 
 ## Asset mirror
 
-The `content-fetch` stage downloads ~260MB of game data from a GitHub mirror on
-every cache miss. To point it elsewhere, set `ASSETS_SOURCE` (in `.env` or the
-environment) to a `gh:owner/repo[@ref][:subdir]` spec:
+The `content-fetch` stage clones ~260MB of game data from a GitHub mirror on
+every cache miss. To point it elsewhere, set `ASSETS_REPO`, and optionally
+`ASSETS_REF`, in `.env` or the environment:
 
 ```
-ASSETS_SOURCE=gh:my-org/quake-assets@main:assets
+ASSETS_REPO=https://github.com/my-org/quake-assets.git
+ASSETS_REF=main
 ```
 
-`compose.yml` passes it to both the `assets` and `quake` builds; keep them in
-step, or the two builds each fetch their own copy. Leaving it unset uses the
-default in `dev/get_assets.sh`, which is the single source of truth for it.
+`ASSETS_REF` may be a branch or a tag, and defaults to `master`; `compose.yml`
+passes them to both the `assets` and `quake` builds; keep them in step, or
+the two builds each fetch their own copy.  Leaving them unset uses the defaults
+in the `content-fetch` stage of the `Containerfile`, which is the single source
+of truth for them.
 
 ## Images
 

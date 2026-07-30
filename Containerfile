@@ -312,23 +312,24 @@ RUN cd hf/shenanigans \
 #
 # ~260MB over the network and the least reproducible part of the build, so it is
 # isolated in its own early stage: nothing in this repo can invalidate it.
-# Consider mirroring the asset set internally and pointing ASSETS_SOURCE at it.
+# Consider mirroring the asset set internally and pointing ASSETS_REPO at it.
 # ===========================================================================
 FROM debian:11 AS content-fetch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      curl ca-certificates bash \
+      git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /srv/quake-assets
 
-COPY dev/get_assets.sh .
+ARG ASSETS_REPO=
+ARG ASSETS_REF=
 
-# Optional mirror override, in the gh:owner/repo[@ref][:subdir] form documented
-# in dev/get_assets.sh. Empty means the script's own default, so the default
-# lives in exactly one place.
-ARG ASSETS_SOURCE=
-RUN bash get_assets.sh . ${ASSETS_SOURCE:+"$ASSETS_SOURCE"}
+RUN git clone --depth 1 --no-tags --branch "${ASSETS_REF:-master}" \
+      "${ASSETS_REPO:-https://github.com/gionko/content.quakejs.com.git}" /tmp/mirror \
+ && mv /tmp/mirror/assets ./assets \
+ && rm -rf /tmp/mirror \
+ && find ./assets -type f -name '*.pk3' | grep -q .
 
 
 # ===========================================================================

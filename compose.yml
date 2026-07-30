@@ -43,10 +43,10 @@ services:
       target: assets
       args:
         TOOLCHAIN_IMAGE: ${TOOLCHAIN_IMAGE:-toolchain}
-        # Optional asset mirror, gh:owner/repo[@ref][:subdir]; empty uses the
-        # default in dev/get_assets.sh. Must match the quake service, or the two
-        # builds fetch the asset set twice.
-        ASSETS_SOURCE: ${ASSETS_SOURCE:-}
+        # Optional asset mirror; empty uses the Containerfile default. Must
+        # match the quake service, or the two builds fetch the asset set twice.
+        ASSETS_REPO: ${ASSETS_REPO:-}
+        ASSETS_REF: ${ASSETS_REF:-}
     restart: unless-stopped
     networks: [quakening]
     ports:
@@ -73,8 +73,6 @@ services:
           ignore:
             - build/
             - node_modules/
-        - path: ./dev/get_assets.sh
-          action: rebuild
         - path: ./dev/assets-package.json
           action: rebuild
         - path: ./bin/content.js
@@ -94,7 +92,8 @@ services:
         TOOLCHAIN_IMAGE: ${TOOLCHAIN_IMAGE:-toolchain}
         MAKE_JOBS: ${MAKE_JOBS:-12}
         # Keep in step with the assets service; see the note there.
-        ASSETS_SOURCE: ${ASSETS_SOURCE:-}
+        ASSETS_REPO: ${ASSETS_REPO:-}
+        ASSETS_REF: ${ASSETS_REF:-}
     restart: unless-stopped
     networks: [quakening]
     ports:
