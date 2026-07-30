@@ -39,7 +39,6 @@ ioq3/.git
 
 # --- compose and docs are never build inputs ---
 compose.yml
-compose.dev.yml
 README.md
 CONTAINERS.md
 .mocharc.json

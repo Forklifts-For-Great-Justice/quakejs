@@ -18,8 +18,7 @@
 #
 #   docker compose build          # or: docker build --target server -t ... .
 #
-# Development incrementality comes from the cache mounts in quake-build below;
-# see compose.dev.yml for the watch/rebuild loop.
+# Development incrementality comes from the cache mounts in quake-build below
 
 # Which image the compile stages build FROM.
 #

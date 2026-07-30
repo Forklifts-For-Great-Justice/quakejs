@@ -7,8 +7,8 @@
 # REGISTRY/TAG pointing at a registry and `docker compose pull`, no checkout of
 # this repository is required.
 #
-# The dev loop lives in compose.dev.yml:
-#   docker compose -f compose.yml -f compose.dev.yml watch
+# Dev launch:
+#   docker compose up --build --watch
 
 name: quakening
 
@@ -61,6 +61,24 @@ services:
       timeout: 5s
       retries: 5
       start_period: 180s
+    develop:
+      watch:
+        # New/changed hf sounds change pak101, which the content server serves.
+        - path: ./hf/sounds
+          action: rebuild
+        # This image also serves pak100, which is built from the engine sources,
+        # so an ioq3 edit leaves it serving a stale pak without this.
+        - path: ./ioq3
+          action: rebuild
+          ignore:
+            - build/
+            - node_modules/
+        - path: ./dev/get_assets.sh
+          action: rebuild
+        - path: ./dev/assets-package.json
+          action: rebuild
+        - path: ./bin/content.js
+          action: rebuild
 
   # -------------------------------------------------------------------------
   # Dedicated server. Game data is baked into the image, so this does not
@@ -91,13 +109,29 @@ services:
     depends_on:
       assets:
         condition: service_healthy
-    # Console output goes to stdout/stderr, so logs need no volume. The engine
-    # writes games.log and q3config_server.cfg inside the game data tree (see
-    # CONTAINERS.md); those writes are discarded on recreate. To persist them,
-    # uncomment below -- but note the volume then shadows the image, so a rebuilt
-    # server image will NOT refresh the paks until the volume is removed.
-    # volumes:
-    #   - quake-base:/opt/ioq3/base
+    develop:
+      watch:
+        # Engine and game code: the expensive path, kept incremental by the
+        # build/ and emscripten cache mounts. Watches the whole submodule to
+        # match the Containerfile's COPY.
+        - path: ./ioq3
+          action: rebuild
+          ignore:
+            - build/
+            - node_modules/
+        - path: ./hf/sounds
+          action: rebuild
+        - path: ./base
+          action: rebuild
+          ignore:
+            # Runtime output, not a build input.
+            - games.log
+            - q3config_server.cfg
+            - "*.pk3"
+        - path: ./dev/quake.sh
+          action: rebuild
+        - path: ./dev/build-quake.sh
+          action: rebuild
 
   # -------------------------------------------------------------------------
   # Static client.
@@ -122,6 +156,31 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-
-# volumes:
-#   quake-base:
+    develop:
+      watch:
+        # Static assets can be pushed straight into the running container.
+        - path: ./html
+          action: sync
+          target: /usr/share/nginx/html
+          ignore:
+            # Both are build outputs that live in html/ and must not be synced
+            # from a possibly-stale host copy.
+            - ioquake3.js
+            - hf/shenanigans
+        # TypeScript needs compiling, so this is a rebuild, not a sync.
+        - path: ./hf/shenanigans
+          action: rebuild
+        - path: ./tsconfig.json
+          action: rebuild
+        - path: ./package.json
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        # The client engine comes out of the same compile as the server.
+        - path: ./ioq3
+          action: rebuild
+          ignore:
+            - build/
+            - node_modules/
+        - path: ./dev/nginx.conf
+          action: rebuild

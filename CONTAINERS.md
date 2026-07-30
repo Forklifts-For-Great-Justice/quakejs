@@ -46,7 +46,7 @@ have containers from the old stack, remove them once:
 ## Development
 
 ```shell
-docker compose -f compose.yml -f compose.dev.yml up --build --watch
+docker compose up --build --watch
 ```
 
 Editing `ioq3`, `hf/shenanigans`, `hf/sounds`, or `html` rebuilds only the
