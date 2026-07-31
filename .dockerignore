@@ -25,6 +25,7 @@ assets_src/
 base/**/*.pk3
 base/hf/games.log
 base/hf/q3config_server.cfg
+html/ioquake3.js
 html/hf/shenanigans/
 
 # --- ioq3 ---
