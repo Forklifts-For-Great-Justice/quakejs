@@ -8,9 +8,9 @@
 # staging, the tsc output) happens to that copy.
 #
 # Build targets:
-#   web       - static client (nginx): index.html + ioquake3.js + shenanigans
+#   web       - static client (nginx): index.html + ioquake3.js + shenanigans,
+#               plus the cataloged asset tree the client downloads
 #   server    - dedicated server (ioq3ded.js) + game data
-#   assets    - quakejs content server (bin/content.js) + asset tree
 #   paks      - scratch image containing just pak100.pk3 and pak101.pk3, for
 #               `--output type=local` extraction in CI
 #   toolchain - the emscripten/LLVM toolchain on its own, for pushing to a
@@ -333,48 +333,20 @@ RUN git clone --depth 1 --no-tags --branch "${ASSETS_REF:-master}" \
 
 
 # ===========================================================================
-# assets -- quakejs content server (bin/content.js) on port 9000.
+# content-catalog -- turn the asset tree into static files plus a manifest.
 #
-# The content server and its package manifest come from the local checkout.
-# quakejs-files was dropped from that manifest (see CONTAINERS.md); bin/content.js
-# never required it.
+# Requires Debian 13 or later for `cksum -a crc32b`.
 # ===========================================================================
-FROM debian:11-slim AS assets-deps
+FROM debian:13-slim AS content-catalog
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates nodejs npm \
+RUN apt-get update && apt-get install -y --no-install-recommends jq \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /srv/quake-assets
-# dev/assets-package.json has no lockfile, so this is npm install, not npm ci.
-# Committing a lockfile for it would make the assets image reproducible.
-COPY dev/assets-package.json package.json
-RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm install --ignore-scripts --no-audit --no-fund
+COPY --from=content-fetch /srv/quake-assets/assets /src/assets
+COPY --from=pak-build /paks/pak100.pk3 /paks/pak101.pk3 /src/assets/hf/
 
-
-FROM debian:11-slim AS assets
-
-# curl is here for the compose healthcheck, not for the app.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates nodejs curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --system --create-home --home-dir /home/quake quake
-
-WORKDIR /srv/quake-assets
-
-COPY --from=assets-deps /srv/quake-assets/node_modules ./node_modules
-COPY bin/content.js ./bin/content.js
-
-# content.js defaults its root to ../assets relative to bin/, and its port to
-# 9000, so no config file is required.
-COPY --from=content-fetch /srv/quake-assets/assets ./assets
-COPY --from=pak-build /paks/pak100.pk3 /paks/pak101.pk3 ./assets/hf/
-
-USER quake
-EXPOSE 9000
-
-ENTRYPOINT ["node", "bin/content.js"]
+COPY dev/catalog-assets.sh /tmp/catalog-assets.sh
+RUN bash /tmp/catalog-assets.sh /src/assets /out
 
 
 # ===========================================================================
@@ -428,13 +400,7 @@ ENTRYPOINT ["sh", "bin/quake.sh"]
 
 
 # ===========================================================================
-# web -- static client.
-#
-# nginx on alpine is ~50MB and gzips the very large ioquake3.js on the way out.
-#
-# ioquake3.js comes from quake-build, not from the tracked copy in html/ (which
-# .dockerignore excludes), so the image always carries a client built from the
-# current submodule.
+# web -- static client and the asset set it downloads.
 # ===========================================================================
 FROM nginx:1.30-alpine AS web
 
@@ -446,5 +412,6 @@ COPY dev/nginx.conf /etc/nginx/conf.d/default.conf
 COPY html/ /usr/share/nginx/html/
 COPY --from=quake-build       /out/ioquake3.js          /usr/share/nginx/html/ioquake3.js
 COPY --from=shenanigans-build /src/html/hf/shenanigans  /usr/share/nginx/html/hf/shenanigans
+COPY --from=content-catalog   /out/assets               /usr/share/nginx/html/assets
 
 EXPOSE 80

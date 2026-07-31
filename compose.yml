@@ -1,6 +1,6 @@
 # Production deployment. Self-contained images, no bind mounts.
 #
-#   docker compose build          # builds all three images
+#   docker compose build          # builds both images
 #   docker compose up -d
 #
 # This file is also the only thing needed on a deployment host: with
@@ -15,7 +15,7 @@ name: quakening
 # No container_name: entries -- container names are a daemon-global namespace and
 # collide with leftovers this project does not recognise as its own. Compose names
 # containers <project>-<service>-<n>, and service names remain the network
-# aliases, so `fs_cdn assets:9000` is unaffected. Use
+# aliases, so `fs_cdn web:80` is unaffected. Use
 # `docker compose logs -f quake` / `docker compose exec quake sh`.
 #
 # Override REGISTRY and TAG (in a .env file or the environment) to push and pull
@@ -31,50 +31,6 @@ networks:
   quakening:
 
 services:
-  # -------------------------------------------------------------------------
-  # Content server. Serves the baseq3 asset set plus the locally built paks.
-  # The dedicated server and the browser client both pull content from here.
-  # -------------------------------------------------------------------------
-  assets:
-    image: ${REGISTRY:-localhost}/quake-assets:${TAG:-latest}
-    build:
-      context: .
-      dockerfile: Containerfile
-      target: assets
-      args:
-        TOOLCHAIN_IMAGE: ${TOOLCHAIN_IMAGE:-toolchain}
-        # Optional asset mirror; empty uses the Containerfile default. Must
-        # match the quake service, or the two builds fetch the asset set twice.
-        ASSETS_REPO: ${ASSETS_REPO:-}
-        ASSETS_REF: ${ASSETS_REF:-}
-    restart: unless-stopped
-    networks: [quakening]
-    ports:
-      # html/index.html derives the client's fs_cdn as <page host>:9000, so this
-      # published port cannot be changed without editing the client too.
-      - "${ASSETS_PORT:-9000}:9000"
-    healthcheck:
-      # content.js gzips every asset at startup to compute compressed sizes, so
-      # first readiness on a full asset set takes a while. Hence start_period.
-      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:9000/assets/manifest.json"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 180s
-    develop:
-      watch:
-        # New/changed hf sounds change pak101, which the content server serves.
-        - path: ./hf/sounds
-          action: rebuild
-        # This image also serves pak100, which is built from the engine sources,
-        # so an ioq3 edit leaves it serving a stale pak without this.
-        - path: ./ioq3
-          action: rebuild
-        - path: ./dev/assets-package.json
-          action: rebuild
-        - path: ./bin/content.js
-          action: rebuild
-
   # -------------------------------------------------------------------------
   # Dedicated server. Game data is baked into the image, so this does not
   # download the asset set from the CDN on first start.
@@ -99,17 +55,12 @@ services:
       - "${QUAKE_PORT:-27960}:27960"
     environment:
       QUAKE_GAME: ${QUAKE_GAME:-hf}
-      # Server-side only; resolves via compose DNS. The browser client derives
-      # its own CDN address from the page host -- see CONTAINERS.md.
-      QUAKE_CDN: ${QUAKE_CDN:-assets:9000}
+      QUAKE_CDN: ${QUAKE_CDN:-web:80}
     depends_on:
-      assets:
+      web:
         condition: service_healthy
     develop:
       watch:
-        # Engine and game code: the expensive path, kept incremental by the
-        # build/ and emscripten cache mounts. Watches the whole submodule to
-        # match the Containerfile's COPY.
         - path: ./ioq3
           action: rebuild
         - path: ./hf/sounds
@@ -122,7 +73,8 @@ services:
           action: rebuild
 
   # -------------------------------------------------------------------------
-  # Static client.
+  # Static client, and the asset set it downloads. The dedicated server pulls
+  # content from here too, over the compose network.
   # -------------------------------------------------------------------------
   web:
     image: ${REGISTRY:-localhost}/quake-web:${TAG:-latest}
@@ -133,20 +85,25 @@ services:
       args:
         TOOLCHAIN_IMAGE: ${TOOLCHAIN_IMAGE:-toolchain}
         MAKE_JOBS: ${MAKE_JOBS:-12}
+        # Optional asset mirror; empty uses the Containerfile default. Must
+        # match the quake service, or the two builds fetch the asset set twice.
+        ASSETS_REPO: ${ASSETS_REPO:-}
+        ASSETS_REF: ${ASSETS_REF:-}
     restart: unless-stopped
     networks: [quakening]
     ports:
-      # nginx listens on 80 inside the container.
       - "${WEB_PORT:-8080}:80"
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/index.html"]
-      interval: 10s
+      test: ["CMD", "curl", "-fsSo", "/dev/null", "http://localhost/"]
+      interval: 60s
       timeout: 5s
       retries: 3
       start_period: 10s
     develop:
       watch:
-        # Static assets can be pushed straight into the running container.
+        # Static files can be pushed straight into the running container. This
+        # syncs ./html only, so the assets/ tree the image was built with is
+        # left alone.
         - path: ./html
           action: sync
           target: /usr/share/nginx/html
@@ -159,8 +116,13 @@ services:
           action: rebuild
         - path: ./package-lock.json
           action: rebuild
-        # The client engine comes out of the same compile as the server.
+        # pak100 is built from the engine sources
         - path: ./ioq3
           action: rebuild
+        # New/changed hf sounds change pak101
+        - path: ./hf/sounds
+          action: rebuild
         - path: ./dev/nginx.conf
+          action: rebuild
+        - path: ./dev/catalog-assets.sh
           action: rebuild

@@ -1,5 +1,5 @@
 ---
-# Builds and publishes the three runtime images, and extracts the pk3 artifacts.
+# Builds and publishes the two runtime images, and extracts the pk3 artifacts.
 #
 # Deliberately one sequential job rather than a matrix: every target shares the
 # toolchain and quake-build stages, so building them in a single BuildKit session
@@ -102,27 +102,6 @@ jobs:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta_web.outputs.tags }}
           labels: ${{ steps.meta_web.outputs.labels }}
-          platforms: "linux/amd64"
-          build-args: |
-            MAKE_JOBS=4
-          cache-from: type=gha,scope=${{ env.cache_scope }}
-          cache-to: type=gha,scope=${{ env.cache_scope }},mode=max
-
-      - name: Metadata for assets
-        id: meta_assets
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.registry }}/${{ github.repository }}/assets
-
-      - name: ${{ format('Build{0}assets', (github.event_name == 'push' && '+Push ' || ' ')) }}
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Containerfile
-          target: assets
-          push: ${{ github.event_name == 'push' }}
-          tags: ${{ steps.meta_assets.outputs.tags }}
-          labels: ${{ steps.meta_assets.outputs.labels }}
           platforms: "linux/amd64"
           # Must match the other targets: MAKE_JOBS is interpolated into the
           # quake-build RUN, so a different value is a cache miss and recompiles

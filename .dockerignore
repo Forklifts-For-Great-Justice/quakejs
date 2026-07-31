@@ -1,7 +1,4 @@
-# Keep the build context small: without this, every build ships the whole ioq3
-# submodule and node_modules to the daemon before a single instruction runs.
-#
-# Anything produced BY the build must be listed here, or a stale local copy
+# Anything produced BY the build should be listed here, or a stale local copy
 # silently becomes a build input.
 
 # --- VCS / editor ---
@@ -22,6 +19,7 @@ build/
 hf/build/
 assets/
 assets_src/
+html/assets/
 base/**/*.pk3
 base/hf/games.log
 base/hf/q3config_server.cfg
@@ -29,11 +27,6 @@ html/ioquake3.js
 html/hf/shenanigans/
 
 # --- ioq3 ---
-#
-# The whole submodule is copied into the build (see CONTAINERS.md), so exclude
-# only what must not come along. node_modules is the critical one: quake-build
-# installs ws@0.4.29 into /opt/ioq3/node_modules before copying the tree, and
-# the copy merges into that directory.
 ioq3/build/
 ioq3/node_modules/
 ioq3/.git
