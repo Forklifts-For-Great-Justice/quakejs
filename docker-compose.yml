@@ -3,41 +3,24 @@ networks:
 services:
   quake: 
     restart: unless-stopped
-    container_name: quake
     build:
-      context: ./dev
-      dockerfile: ./Dockerfile.quake
-    image: quakebuild:latest
+      dockerfile: ./dev/Dockerfile.quake
+      target: hfq-quake-server
+    image: hf-quake
+    container_name: quake
     networks: [ quakening ]
     ports: [ "27960:27960" ]
-    volumes: 
-      - ./assets:/opt/ioq3/assets:z
-      - ./base:/opt/ioq3/base:z
-      #- ./bin:/opt/ioq3/bin:z,ro
-      - ./build/ioq3ded.js:/opt/ioq3/build/release-js-js/ioq3ded.js:z,ro
     working_dir: /opt/ioq3
     environment:
       - QUAKE_GAME=${QUAKE_GAME:-hf}
     command: sh bin/quake.sh
   web:
     # TODO(sissel): Add ioquake3.js from quakebuild
-    image: quakebuild
-    container_name: quake-web
-    working_dir: /srv/quakejs
+    image: hf-web
+    container_name: web
+    build:
+      dockerfile: ./dev/Dockerfile.quake
+      target: hfq-web
     ports:
-      - 8080:8080
+      - 8080:80
     networks: [ quakening ]
-    # TODO(sissel): Copy this into the image instead of using volumes
-    volumes:
-      - ./html:/srv/quakejs/html:z,ro
-    command: sh -c 'cd html; python3 -mhttp.server 8080'
-  assets: 
-    container_name: quake-assets
-    image: ghcr.io/forklifts-for-great-justice/quakejs/assets:main
-    volumes:
-      - ./base/hf:/srv/quake-assets/assets/hf:z,ro
-    ports: [ "9000:9000" ]
-    networks: [ quakening ]
-    command: /bin/sh -c 'node bin/content.js' -
-
-
