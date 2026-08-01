@@ -4,8 +4,6 @@ name: Docker Image CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 env:
   registry: ghcr.io
@@ -20,11 +18,11 @@ jobs:
       matrix:
         include:
         - dockerfile: "dev/Dockerfile.quake"
-          name: quake
-          context: dev
-        #- dockerfile: "dev/Dockerfile.assets"
-          #name: assets
-          #context: dev
+          name: hfq-quake-server
+          context: .
+        - dockerfile: "dev/Dockerfile.quake"
+          name: hfq-web
+          context: .
 
     runs-on: ubuntu-latest
     steps:
