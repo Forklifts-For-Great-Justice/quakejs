@@ -40,6 +40,7 @@ cd hf
 if ! echo  "8b703ea3ebe73da409d154f8e14cb836  pak90.pk3" | md5sum -c > /dev/null 2>&1 ; then
 	curl -L -C - --retry 3 --retry-delay 10 -O "https://files.ioquake3.org/xcsv_hires.zip"
 	ls -l xcsv_hires.zip
+	cat -v xcsv_hires.zip
 	unzip xcsv_hires.zip xcsv_bq3hi-res.pk3
 	mv xcsv_bq3hi-res.pk3 pak090.pk3
 	rm xcsv_hires.zip
