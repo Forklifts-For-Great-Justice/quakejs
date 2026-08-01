@@ -74,10 +74,6 @@ RUN apt-get install -y --no-install-recommends clang nodejs npm git python2 make
 # Possible we can remove this in the future if that is fixed.
 RUN apt-get install -y --no-install-recommends gcc
 
-RUN git clone --branch "main" --single-branch https://github.com/forklifts-for-great-justice/ioq3 /opt/ioq3
-
-WORKDIR /opt/ioq3
-
 # Make emscripten's first-run config setup happen.
 # There may be a better way to bypass this other than running the emmake tool twice
 ENV LLVM=/opt/llvm/usr/local/bin 
@@ -86,9 +82,14 @@ ENV EMSCRIPTEN=/opt/emscripten
 # Let emscripten do a first-run startup
 RUN PATH=${LLVM}:$PATH ${EMSCRIPTEN}/emmake --generate-config
 
+RUN mkdir -p /opt/ioq3
+WORKDIR /opt/ioq3
+
 # The debian node-ws package is far too new and is incompatible with this
 # version of emscripten
 RUN mkdir node_modules && npm i ws@0.4.29
+
+ADD ./ioq3 /opt/ioq3
 
 ADD dev/patch-quake.sh /tmp
 RUN sh /tmp/patch-quake.sh
@@ -101,7 +102,9 @@ FROM hfq-ioq3-build-warmup AS hfq-ioq3-build
 # Use the local ioq3 files to build any new changes
 # This reuses the build from the -warmup stage since we're not likely changing all that many files in quake.
 # Hopefully this speeds up by effectively doing incremental builds.
-ADD ./ioq3 /opt/ioq3
+
+ADD ./ioq3/code /opt/ioq3/code
+ADD ./ioq3/Makefile /opt/ioq3/Makefile
 
 ADD dev/patch-quake.sh /tmp
 RUN sh /tmp/patch-quake.sh
