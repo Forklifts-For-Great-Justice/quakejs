@@ -6,7 +6,7 @@ pak() {
 	name="$1"
 	shift
 
-	workdir="/tmp/pak-build-${name}"
+	workdir="/tmp/paks/pak-build-${name}"
 
 	mkdir -p "$workdir"
 
@@ -15,7 +15,6 @@ pak() {
 		echo "Assets> Downloading $i"
 		curl -C - --retry 3 --retry-delay 10 -o "$file" "$i"
 		unzip "$file" -d "$workdir"
-		rm "$file"
 	done
 
 	# Some paks ship with q3 mod files (qvm).
@@ -53,7 +52,9 @@ pak "pak091.pk3" \
 	https://q3js.lvlworld.com/assets/baseq3/117878519-pak104.pk3 \
 	https://q3js.lvlworld.com/assets/baseq3/1736309461-pak105.pk3 
 
-# Maps seem more complicated to download because of the way the lvlworld website is setup...
+curl -L -C - --retry 3 --retry-delay 10 -o pak092.pk3 \
+  https://github.com/Forklifts-For-Great-Justice/quake-assets/raw/refs/heads/main/assets/hf/pak092.pk3
+
 #pak "pak091.pk3" \
 	#'https://files.lvlworld.com/q3a/a-f/devoctf1.zip'
   #https://files.lvlworld.com/q3a/m-r/map-13dream_xt.zip
