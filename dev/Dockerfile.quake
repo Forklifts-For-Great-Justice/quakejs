@@ -187,10 +187,6 @@ COPY hf/shenanigans /opt/ioq3/html/hf/shenanigans
 #### Content to be served to clients over the web (assets, quake client, javascript shenanigans, etc)
 FROM nginx:1.31.3 AS hfq-web
 
-# index.html and friends.
-COPY html/index.html /usr/share/nginx/html/
-COPY html/game.css /usr/share/nginx/html/
-
 # Quake client code from ioq3 build
 COPY --from=hfq-ioq3-build /opt/ioq3/target/ioquake3.js /usr/share/nginx/html/ioquake3.js
 #COPY --from=hfq-ioq3-build /opt/ioq3/target/ioquake3.js.map /usr/share/nginx/html/ioquake3.js
@@ -209,6 +205,10 @@ COPY --from=hfq-quake-manifest /opt/ioq3/assets/manifest.json /usr/share/nginx/h
 
 # Shenanigans!
 COPY --from=hfq-shenanigans /opt/ioq3/html/ /usr/share/nginx/html/
+
+# index.html and friends.
+COPY html/index.html /usr/share/nginx/html/
+COPY html/game.css /usr/share/nginx/html/
 
 WORKDIR /usr/share/nginx/html
 
