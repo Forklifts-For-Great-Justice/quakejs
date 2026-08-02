@@ -113,14 +113,7 @@
 				import { hookSDL } from "/hf/shenanigans/Utils.js"
 				SDL.receiveEvent = hookSDL(SDL.receiveEvent);
 
-				const button = document.getElementById("tryme");
-				// import { Setup, Begin } from "/hf/shenanigans/bsod/index.js"
 				import { Begin } from "shenanigans/mirror-image";
-
-				button.addEventListener("click", () => {
-					console.log("Click");
-					Begin();
-				});
 
 				window.Shenanigans = {};
 				import * as BowToMyFirewall from "/hf/shenanigans/bow-to-my-firewall/index.js";
@@ -131,7 +124,5 @@
 	<body>
 
 		<div id="viewport-frame"></div>
-
-		<button id="tryme" style=" position: fixed; left: 0; top: 0;">Console Takeover</button>
 	</body>
 </html>
