@@ -64,7 +64,7 @@ RUN mkdir /opt/emscripten
 RUN git clone --branch "${EMSCRIPTEN_VERSION}" --single-branch https://github.com/emscripten-core/emscripten /opt/emscripten
 
 #### Compile ioq3 from source
-FROM base_os AS hfq-ioq3-build-warmup
+FROM base_os AS hfq-ioq3-build
 COPY --from=ioq3-toolchain /opt/llvm /opt/llvm
 COPY --from=ioq3-toolchain /opt/emscripten /opt/emscripten
 
@@ -89,28 +89,18 @@ WORKDIR /opt/ioq3
 # version of emscripten
 RUN mkdir node_modules && npm i ws@0.4.29
 
-ADD ./ioq3 /opt/ioq3
+ADD ./ioq3/ /opt/ioq3/
 
 ADD dev/patch-quake.sh /tmp
 RUN sh /tmp/patch-quake.sh
 
 ADD dev/build-quake.sh /tmp
-RUN sh /tmp/build-quake.sh
+RUN --mount=type=cache,target=/opt/ioq3/build/ sh /tmp/build-quake.sh
 
-FROM hfq-ioq3-build-warmup AS hfq-ioq3-build
-
-# Use the local ioq3 files to build any new changes
-# This reuses the build from the -warmup stage since we're not likely changing all that many files in quake.
-# Hopefully this speeds up by effectively doing incremental builds.
-
-ADD ./ioq3/code /opt/ioq3/code
-ADD ./ioq3/Makefile /opt/ioq3/Makefile
-
-ADD dev/patch-quake.sh /tmp
-RUN sh /tmp/patch-quake.sh
-
-ADD dev/build-quake.sh /tmp
-RUN sh /tmp/build-quake.sh
+RUN mkdir -p /opt/ioq3/target
+RUN --mount=type=cache,target=/opt/ioq3/build/ cp -a build/release-js-js/ioq3ded.js /opt/ioq3/target/
+RUN --mount=type=cache,target=/opt/ioq3/build/ cp -a build/release-js-js/ioquake3.js /opt/ioq3/target/
+RUN --mount=type=cache,target=/opt/ioq3/build/ cp -a build/release-js-js/baseq3/vm /opt/ioq3/target/
 
 #### Gather original quake asset files
 # These files were previously available on content.quakejs.com, but
@@ -143,7 +133,7 @@ WORKDIR /opt/ioq3
 RUN mkdir assets
 
 ADD dev/get_assets.sh /tmp
-RUN sh /tmp/get_assets.sh
+RUN --mount=type=cache,target=/tmp/paks sh /tmp/get_assets.sh
 
 COPY dev/pk3prep.sh /tmp
 RUN bash /tmp/pk3prep.sh /opt/ioq3/
@@ -154,7 +144,7 @@ RUN apt-get install -y --no-install-recommends curl unzip zip libarchive-zip-per
 
 # Fetch our q3 mod code into a pakfile (and ship it as pak100.pk3)
 # Maybe move this into the quake build script...
-COPY --from=hfq-ioq3-build /opt/ioq3/build/release-js-js/baseq3/vm /tmp/vm
+COPY --from=hfq-ioq3-build /opt/ioq3/target/vm /tmp/vm
 RUN mkdir -p /opt/ioq3/assets/hf
 RUN cd /tmp/; zip -r /opt/ioq3/assets/hf/pak100.pk3 ./vm
 
@@ -202,8 +192,8 @@ COPY html/index.html /usr/share/nginx/html/
 COPY html/game.css /usr/share/nginx/html/
 
 # Quake client code from ioq3 build
-COPY --from=hfq-ioq3-build /opt/ioq3/build/release-js-js/ioquake3.js /usr/share/nginx/html/ioquake3.js
-COPY --from=hfq-ioq3-build /opt/ioq3/build/release-js-js/ioquake3.js.map /usr/share/nginx/html/ioquake3.js.map
+COPY --from=hfq-ioq3-build /opt/ioq3/target/ioquake3.js /usr/share/nginx/html/ioquake3.js
+#COPY --from=hfq-ioq3-build /opt/ioq3/target/ioquake3.js.map /usr/share/nginx/html/ioquake3.js
 
 # Base quake3 assets
 COPY --from=hfq-quake-assets /opt/ioq3/assets /usr/share/nginx/html/assets
@@ -230,7 +220,7 @@ RUN apt-get install -y --no-install-recommends nodejs
 RUN mkdir -p /opt/ioq3/bin/
 
 ADD dev/quake.sh /opt/ioq3/bin/quake.sh
-COPY --from=hfq-ioq3-build /opt/ioq3/build/release-js-js/ioq3ded.js /opt/ioq3/build/release-js-js/ioq3ded.js 
+COPY --from=hfq-ioq3-build /opt/ioq3/target/ioq3ded.js /opt/ioq3/build/release-js-js/ioq3ded.js 
 COPY --from=hfq-ioq3-build /opt/ioq3/node_modules /opt/ioq3/node_modules
 
 COPY ./server.cfg /opt/ioq3/base/hf/
