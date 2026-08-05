@@ -2,6 +2,7 @@ networks:
   quakening:
 services:
   quake: 
+    platform: linux/amd64
     restart: unless-stopped
     build:
       dockerfile: ./dev/Dockerfile.quake
@@ -15,6 +16,7 @@ services:
       - QUAKE_GAME=${QUAKE_GAME:-hf}
     command: sh bin/quake.sh
   web:
+    platform: linux/amd64
     # TODO(sissel): Add ioquake3.js from quakebuild
     image: hf-web
     container_name: web
