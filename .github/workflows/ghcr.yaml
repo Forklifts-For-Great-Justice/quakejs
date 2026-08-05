@@ -28,7 +28,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.registry }}/${{ github.repository }}/${{ matrix.name }}
+          images: ${{ env.registry }}/${{ github.repository }}/hfq-quake-server
 
       - name: Log in to the Container registry
         if: ${{ github.event_name == 'push' }}
@@ -55,7 +55,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.registry }}/${{ github.repository }}/hfq-web
           labels: ${{ steps.meta.outputs.labels }}
           platforms: "linux/amd64"
           context: .
