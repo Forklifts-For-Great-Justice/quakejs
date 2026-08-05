@@ -24,12 +24,6 @@ jobs:
       - name: Setup docker build
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.registry }}/${{ github.repository }}/hfq-quake-server
-
       - name: Log in to the Container registry
         if: ${{ github.event_name == 'push' }}
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
@@ -38,12 +32,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata (tags, labels)
+        id: meta_quake
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.registry }}/${{ github.repository }}/hfq-quake
+
       - name: ${{ format('Build{0}Quake Server', (github.event_name == 'push' && '+Push ' || ' ')) }}
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_quake.outputs.tags }}
+          labels: ${{ steps.meta_quake.outputs.labels }}
           platforms: "linux/amd64"
           context: .
           target: hfq-quake-server
@@ -51,12 +51,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Extract metadata (tags, labels)
+        id: meta_web
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.registry }}/${{ github.repository }}/hfq-quake
+
       - name: ${{ format('Build{0}Web and Assets', (github.event_name == 'push' && '+Push ' || ' ')) }}
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' }}
-          tags: ${{ env.registry }}/${{ github.repository }}/hfq-web
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_web.outputs.tags }}
+          labels: ${{ steps.meta_web.outputs.labels }}
           platforms: "linux/amd64"
           context: .
           target: hfq-web
