@@ -19,9 +19,11 @@ jobs:
         include:
         - dockerfile: "dev/Dockerfile.quake"
           name: hfq-quake-server
+          target: hfq-quake-server
           context: .
         - dockerfile: "dev/Dockerfile.quake"
           name: hfq-web
+          target: hfq-web
           context: .
 
     runs-on: ubuntu-latest
@@ -56,6 +58,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: "linux/amd64"
           context: ${{ matrix.context }}
+          target: ${{ matrix.target }}
           file: ${{ matrix.dockerfile }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
