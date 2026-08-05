@@ -14,18 +14,6 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-        - dockerfile: "dev/Dockerfile.quake"
-          name: hfq-quake-server
-          target: hfq-quake-server
-          context: .
-        - dockerfile: "dev/Dockerfile.quake"
-          name: hfq-web
-          target: hfq-web
-          context: .
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -50,15 +38,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: ${{ format('Build{0}Docker image', (github.event_name == 'push' && '+Push ' || ' ')) }}
+      - name: ${{ format('Build{0}Quake Server', (github.event_name == 'push' && '+Push ' || ' ')) }}
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: "linux/amd64"
-          context: ${{ matrix.context }}
-          target: ${{ matrix.target }}
-          file: ${{ matrix.dockerfile }}
+          context: .
+          target: hfq-quake-server
+          file: dev/Dockerfile.quake
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: ${{ format('Build{0}Web and Assets', (github.event_name == 'push' && '+Push ' || ' ')) }}
+        uses: docker/build-push-action@v6
+        with:
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: "linux/amd64"
+          context: .
+          target: hfq-web
+          file: dev/Dockerfile.quake
           cache-from: type=gha
           cache-to: type=gha,mode=max
