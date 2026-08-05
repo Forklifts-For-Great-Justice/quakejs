@@ -55,7 +55,7 @@ jobs:
         id: meta_web
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.registry }}/${{ github.repository }}/hfq-quake
+          images: ${{ env.registry }}/${{ github.repository }}/hfq-web
 
       - name: ${{ format('Build{0}Web and Assets', (github.event_name == 'push' && '+Push ' || ' ')) }}
         uses: docker/build-push-action@v6
