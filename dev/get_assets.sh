@@ -14,7 +14,7 @@ pak() {
 		file="$workdir/$(basename "$i")"
 		echo "Assets> Downloading $i"
 		curl -C - --retry 3 --retry-delay 10 -o "$file" "$i"
-		unzip "$file" -d "$workdir"
+		unzip -u "$file" -d "$workdir"
 	done
 
 	# Some paks ship with q3 mod files (qvm).
@@ -25,7 +25,7 @@ pak() {
 	out="$PWD/$name"
 	(
 		cd $workdir
-		zip -r $out .
+		zip -ur $out .
 		ls -ld $out
 	)
 }
