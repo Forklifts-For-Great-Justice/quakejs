@@ -30,4 +30,12 @@ Subcommands:
 * `give weapons` - give all weapons and ammo
 * `take ammo` - set all ammo values to zero.
 * `god on|off` - set god mode on or off
+* `js ...` - execute javascript on the client
+
+Javascript Shenanigans:
+
+* `q3.Mirror(duration)` - horizontal flip of client's screen for the given _duration_ in milliseconds
+* `q3.Hack()` - hack the client. Temporarily disrupt human input and causing player demise.
+* `q3.Crash(duration)` - Windows BSOD for _duration_ milliseconds. Disables human inputs while active.
+
 
