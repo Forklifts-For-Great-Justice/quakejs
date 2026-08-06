@@ -35,6 +35,7 @@ import * as BSOD from "./bsod/index.js"
 import * as ConsoleTakeover from "./console-takeover/index.js"
 import * as Telefrag from "./telefrag/index.js"
 export * as Colorblind from "./colorblind/index.js"
+export * as Visual from "./visual/index.js"
 
 BowToMyFirewall.Setup();
 Telefrag.Setup();
