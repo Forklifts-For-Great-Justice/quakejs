@@ -5,9 +5,9 @@ declare function clearTimeout(handle: number): void;
 
 var timeout: number | undefined;
 
-export function Begin() {
+export function Begin(duration: number = 2000) {
   document.getElementById("viewport-frame")?.classList.add("horizontal-mirror");
-  timeout = setTimeout(End, 5000);
+  timeout = setTimeout(End, duration);
 }
 
 export function End() {

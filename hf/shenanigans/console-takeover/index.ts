@@ -20,8 +20,7 @@ export function Setup () {
   setupInvoked = true;
 }
 
-type Aagghhh = "Aaagghhh";
-export async function Begin(aagghhh: Aagghhh) {
+export async function Begin() {
   let element;
   if ((element = document.getElementById(elementId)) !== null) {
     element.classList.add("show");

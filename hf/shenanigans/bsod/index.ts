@@ -18,7 +18,7 @@ export function Setup () {
   setupInvoked = true;
 }
 
-export async function Begin() {
+export async function Begin(duration: number = 2000) {
   let element;
   if ((element = document.getElementById(elementId)) !== null) {
     element.classList.add("show");
@@ -27,7 +27,7 @@ export async function Begin() {
 
   Utils.rejectInput();
 
-  await Utils.sleep(2000);
+  await Utils.sleep(duration);
 
   End();
   Utils.acceptInput();
