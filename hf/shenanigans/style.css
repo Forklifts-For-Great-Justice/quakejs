@@ -99,6 +99,16 @@ body > img#viewport-frame {
   /* background-size: contain; */
 }
 
+#telefrag {
+  border: 2px solid rgba(128,10,128,0.8);
+  background-color: rgba(205, 84, 84, 0.6);
+  backdrop-filter: blur(3px) invert(20%) grayscale();
+  color: rgb(227, 227, 227);
+  border-radius: 10px;
+  box-shadow: 0px 0px 30px 0px rgba(255,46,123,0.9);
+  /* height: 2em; */
+}
+
 .talk-box > .content {
   padding: 1em;
   padding-left: 170px;
@@ -169,3 +179,4 @@ body > img#viewport-frame {
 .horizontal-mirror {
   transform: scaleX(-1);
 }
+u
