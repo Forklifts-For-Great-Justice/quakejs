@@ -20,7 +20,7 @@
 
           "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/index.js",
           "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js",
-		  "shenanigans/mirror-image": "/hf/shenanigans/mirror-image/index.js",
+          "shenanigans/mirror-image": "/hf/shenanigans/mirror-image/index.js",
           "shenanigans/bsod": "/hf/shenanigans/bsod/index.js"
         }
       }
@@ -112,13 +112,6 @@
 				console.log("Module setup");
 				import { hookSDL } from "/hf/shenanigans/Utils.js"
 				SDL.receiveEvent = hookSDL(SDL.receiveEvent);
-
-				import { Begin } from "shenanigans/mirror-image";
-
-				window.Shenanigans = {};
-				import * as BowToMyFirewall from "/hf/shenanigans/bow-to-my-firewall/index.js";
-				window.Shenanigans.BowToMyFirewall = BowToMyFirewall;
-				BowToMyFirewall.Setup();
 		</script>
 	</head>
 	<body>
