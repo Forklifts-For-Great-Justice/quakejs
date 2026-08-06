@@ -44,4 +44,7 @@ prepare sounds/bow-to-my-firewall/self.wav sound/items/quaddamage.wav
 # Extra sound played when shooting and having quad damage
 prepare sounds/bow-to-my-firewall/ahh.wav sound/items/damage3.wav
 
+prepare models/flags/b_flag2.tga models/flags/b_flag2.tga 
+prepare models/flags/r_flag2.tga models/flags/r_flag2.tga 
+
 package
