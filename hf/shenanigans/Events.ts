@@ -41,7 +41,6 @@ ConsoleTakeover.Setup();
 
 event.addEventListener(TYPES.YouDied, () => { 
   console.log("You died"); 
-  BSOD.Begin();
 });
 
 event.addEventListener(TYPES.YouGibbed, () => { console.log("You died (gibbed)"); });
