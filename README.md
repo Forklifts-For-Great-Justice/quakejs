@@ -56,5 +56,6 @@ using `rcon judge <target> js <code>` where _code_ is below:
 * `q3.Mirror(duration)` - horizontal flip of client's screen for the given _duration_ in milliseconds
 * `q3.Hack()` - hack the client. Temporarily disrupt human input and causing player demise.
 * `q3.Crash(duration)` - Windows BSOD for _duration_ milliseconds. Disables human inputs while active.
+* `q3.Visual.Blur(duration)` - Blurs the game screen for _duration_ milliseconds.
 
 
