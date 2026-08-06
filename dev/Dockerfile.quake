@@ -151,6 +151,7 @@ RUN cd /tmp/; zip -r /opt/ioq3/assets/hf/pak100.pk3 ./vm
 # Fetch our modified in-game assets (and ship it as pak101.pk3)
 COPY hf/buildpak3.sh /opt/quakejs/hf/
 COPY hf/sounds /opt/quakejs/hf/sounds/
+COPY hf/models /opt/quakejs/hf/models/
 RUN cd /opt/quakejs && sh hf/buildpak3.sh && mv hf/build/pak101.pk3 /opt/ioq3/assets/hf/
 
 COPY dev/pk3prep.sh /tmp
