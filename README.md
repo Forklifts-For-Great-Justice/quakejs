@@ -16,6 +16,18 @@ docker compose up --build
 
 # Shenanigans
 
+# Gameplay/General
+
+* Client crash safety: A player that quits/crashes can, in most cases, have their score restored if they rejoin the same team when they reconnect.
+* Screen flips when using a portal
+* `g_friendlyFire 1` - nobody sees color anymore (greyscale, etc).
+* `bot_skynet 1` - bots will work  to eliminate humans including teammates. Player deaths are attributed to MOD_SKYNET.
+* `g_acme_jumppad 1` - jumppad trajectories deviate slightly
+
+Easter eggs?
+
+* Pickup quad damage plays "Bow to my firewall!" sound plus a banner w/ bruce potter yelling into a microphone
+
 # rcon judge
 
 `judge` is an rcon command that can manipulate the game. Subcommands:
@@ -33,6 +45,8 @@ Subcommands:
 * `js ...` - execute javascript on the client
 
 Javascript Shenanigans:
+
+using `rcon judge <target> js <code>` where _code_ is below:
 
 * `q3.Mirror(duration)` - horizontal flip of client's screen for the given _duration_ in milliseconds
 * `q3.Hack()` - hack the client. Temporarily disrupt human input and causing player demise.
