@@ -24,6 +24,11 @@ docker compose up --build
 * `bot_skynet 1` - bots will work  to eliminate humans including teammates. Player deaths are attributed to MOD_SKYNET.
 * `g_acme_jumppad 1` - jumppad trajectories deviate slightly
 
+## Teleporter Malfunctions
+
+* Enabled per team, off by default: `g_blu_teleporter_malfunction` and `g_red_teleporter_malfunction`
+* Probability, 50% by default: `g_teleporter_malfunction_rate`
+
 Easter eggs?
 
 * Pickup quad damage plays "Bow to my firewall!" sound plus a banner w/ bruce potter yelling into a microphone
