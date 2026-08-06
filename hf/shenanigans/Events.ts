@@ -33,6 +33,7 @@ import * as MirrorImage from "./mirror-image/index.js"
 import * as BowToMyFirewall from "./bow-to-my-firewall/index.js"
 import * as BSOD from "./bsod/index.js"
 import * as ConsoleTakeover from "./console-takeover/index.js"
+export * as Colorblind from "./colorblind/index.js"
 
 BowToMyFirewall.Setup();
 BSOD.Setup();
@@ -62,4 +63,3 @@ export function Crash(duration: number = 5000) {
 export function Hack() {
   ConsoleTakeover.Begin()
 }
-
