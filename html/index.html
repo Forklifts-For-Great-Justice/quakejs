@@ -46,7 +46,7 @@
       let team = $("team").value;
       let handle = `[${team}] ${name}`;
 
-      let fight = document.location.protocol + "//" + document.location.host + `/quake.html?set name ${name}`;
+      let fight = document.location.protocol + "//" + document.location.host + `/quake.html?name=${handle}`;
 
       document.location.assign(fight);
     }
