@@ -23,6 +23,7 @@ docker compose up --build
 * `g_friendlyFire 1` - nobody sees color anymore (greyscale, etc).
 * `bot_skynet 1` - bots will work  to eliminate humans including teammates. Player deaths are attributed to MOD_SKYNET.
 * `g_acme_jumppad 1` - jumppad trajectories deviate slightly
+* `g_acme_weapons 1` - grenades and rockets explode more quickly (random) and have a larger blast radius
 
 ## Teleporter Malfunctions
 
@@ -33,7 +34,7 @@ Easter eggs?
 
 * Pickup quad damage plays "Bow to my firewall!" sound plus a banner w/ bruce potter yelling into a microphone
 
-# rcon judge
+# rcon judge commands
 
 `judge` is an rcon command that can manipulate the game. Subcommands:
 
@@ -44,9 +45,12 @@ Valid targets: `all`, `red`, `blue`, or a numeric player id.
 Subcommands:
 
 * `hurt num` - cause _num_ amount of damage to the target(s)
+* `burn duration` - cause burn damage for the given duration (in milliseconds)
+* `nudge` - tf2 admin slap? Bumps the player in a random direction.
 * `give weapons` - give all weapons and ammo
 * `take ammo` - set all ammo values to zero.
 * `god on|off` - set god mode on or off
+* `noclip on|off` - set noclip on or off
 * `js ...` - execute javascript on the client
 
 Javascript Shenanigans:
