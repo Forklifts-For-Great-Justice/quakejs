@@ -1,0 +1,78 @@
+html, body {
+	height: 100%;
+	padding: 1em;
+	margin: 0;
+  background-color: black;
+	background-image: url('background.png');
+  background-size: contain;
+  background-position: center; /* Centers the image within the empty space */
+  background-repeat: no-repeat; /* Required, otherwise the image will tile */
+}
+
+input {
+  font-size: xx-large;
+  width: 7em;
+  background-color: #633;
+  color: white;
+  padding: 8px;
+  //border-radius: 15px;
+  border: 1px solid #daa;
+}
+
+input:focus {
+  border: 1px solid #fcc;
+  box-shadow: 3px 3px 15px #f88;
+}
+
+label {
+  font-size: xx-large;
+  color: white;
+  font-family: Impact, "Courier New", sans-serif;
+  padding-right: 8px;
+
+  align-self: center;
+  padding-right: 10px;
+}
+
+.login {
+  margin-left: 50px;
+  top: 400px;
+  position: absolute;
+  width: 200px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.xlogin > * {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+
+
+.login button {
+  grid-column: span 2 / span 2;
+  font-size: x-large;
+  margin: 10px;
+  font-family: Impact, "Courier New", sans-serif;
+  letter-spacing: 10px;
+  box-shadow: 0 0 12px rgba(222, 245, 50, 1);
+  border: 1px solid rgb(255, 168, 168);
+  border-radius: 15px;
+  background-color: black;
+  color: #ff3e3e;
+
+  transition: box-shadow 0.5s, background-color 0.5s;
+}
+
+.login button:hover {
+  background-color: #300;
+  box-shadow: 0 0 24px rgba(222, 245, 50, 1);
+}
+
+.login button:active {
+  transform: scale(0.90);
+}

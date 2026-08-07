@@ -208,8 +208,11 @@ COPY --from=hfq-quake-manifest /opt/ioq3/assets/manifest.json /usr/share/nginx/h
 COPY --from=hfq-shenanigans /opt/ioq3/html/ /usr/share/nginx/html/
 
 # index.html and friends.
-COPY html/index.html /usr/share/nginx/html/
-COPY html/game.css /usr/share/nginx/html/
+COPY --chown=nginx html/index.html /usr/share/nginx/html/
+COPY --chown=nginx html/quake.html /usr/share/nginx/html/
+COPY --chown=nginx html/login.css /usr/share/nginx/html/
+COPY --chown=nginx html/background.png /usr/share/nginx/html/
+COPY --chown=nginx html/game.css /usr/share/nginx/html/
 
 WORKDIR /usr/share/nginx/html
 

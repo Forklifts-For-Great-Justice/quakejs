@@ -2,120 +2,61 @@
 <html>
 	<head>
 		<title>QuakeJS Local</title>
-		<link rel="stylesheet" href="game.css"></link>
-		<link rel="stylesheet" href="hf/shenanigans/style.css"></link>
+		<link rel="stylesheet" href="login.css"></link>
+  </head>
+  <body>
+    <div class="login">
+      <label for="name">Player</label>
+      <input type="text" id="name" placeholder="player">
+      <label for="team">Team</label>
+      <input type="text" id="team" placeholder="team">
 
-		<!-- XXX: Download any fonts to serve locally instead of using google fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
+      <button id="fight">Fight!</button>
+    </div>
 
-		<!-- If you need to access a module from the browser devtools, you can use
-				`await import(<path>)` on the browser dev console, at least on Chrome/Webkit -->
-    <script type="importmap">
-      {
-        "imports": {
-          "shenanigans/Utils": "/hf/shenanigans/Utils.js",
-          "shenanigans/Events": "/hf/shenanigans/Events.js",
+    <script>
 
-          "shenanigans/bow-to-my-firewall": "/hf/shenanigans/bow-to-my-firewall/index.js",
-          "shenanigans/console-takeover": "/hf/shenanigans/console-takeover/index.js",
-          "shenanigans/mirror-image": "/hf/shenanigans/mirror-image/index.js",
-          "shenanigans/bsod": "/hf/shenanigans/bsod/index.js"
-        }
+    function $(v) {
+      return document.getElementById(v)
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      let n = localStorage.getItem("name");
+      let t = localStorage.getItem("team");
+
+      if (n !== null) {
+        $("name").value = n;
       }
+
+      if (t !== null) {
+        $("team").value = t;
+      }
+    });
+
+    function save() {
+      localStorage.setItem("name", $("name").value);
+      localStorage.setItem("team", $("team").value);
+    }
+
+    
+    function submit() {
+      save();
+      // XXX: Save names to cookies?
+      let name = $("name").value;
+      let team = $("team").value;
+      let handle = `[${team}] ${name}`;
+
+      let fight = document.location.protocol + "//" + document.location.host + `/quake.html?set name ${name}`;
+
+      document.location.assign(fight);
+    }
+
+    $("name").addEventListener("keydown", (e) => { if (e.code == "Enter") { submit() } })
+    $("team").addEventListener("keydown", (e) => { if (e.code == "Enter") { submit() } })
+
+    $("name").addEventListener("blur", save);
+    $("team").addEventListener("blur", save);
+    $("fight").addEventListener("click", submit);
     </script>
-
-		<script type="text/javascript" src="ioquake3.js"></script>
-		<link rel="apple-touch-icon" sizes="57x57" href="/favicon/apple-icon-57x57.png">
-		<link rel="apple-touch-icon" sizes="60x60" href="/favicon/apple-icon-60x60.png">
-		<link rel="apple-touch-icon" sizes="72x72" href="/favicon/apple-icon-72x72.png">
-		<link rel="apple-touch-icon" sizes="76x76" href="/favicon/apple-icon-76x76.png">
-		<link rel="apple-touch-icon" sizes="114x114" href="/favicon/apple-icon-114x114.png">
-		<link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-icon-120x120.png">
-		<link rel="apple-touch-icon" sizes="144x144" href="/favicon/apple-icon-144x144.png">
-		<link rel="apple-touch-icon" sizes="152x152" href="/favicon/apple-icon-152x152.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-icon-180x180.png">
-		<link rel="icon" type="image/png" sizes="192x192"  href="/favicon/android-icon-192x192.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
-		<meta name="msapplication-TileColor" content="#ffffff">
-		<meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png">
-		<meta name="theme-color" content="#ffffff">
-		<script type="text/javascript">
-			function getQueryCommands() {
-				var search = /([^&=]+)/g;
-				var query  = window.location.search.substring(1);
-
-				var args = [];
-
-				var match;
-				while (match = search.exec(query)) {
-					var val = decodeURIComponent(match[1]);
-					val = val.split(' ');
-					val[0] = '+' + val[0];
-					args.push.apply(args, val);
-				}
-
-				console.log("QUery args:", args);
-
-				return args;
-			}
-
-			window.onload = function () {
-				function resizeViewport() {
-					if (!ioq3.canvas) {
-						// ignore if the canvas hasn't yet initialized
-						return;
-					}
-					if ((document['webkitFullScreenElement'] || document['webkitFullscreenElement'] ||
-								document['mozFullScreenElement'] || document['mozFullscreenElement'] ||
-								document['fullScreenElement'] || document['fullscreenElement'])) {
-						// ignore resize events due to going fullscreen
-						return;
-					}
-					ioq3.setCanvasSize(ioq3.viewport.offsetWidth, ioq3.viewport.offsetHeight);
-				}
-
-				ioq3.viewport = document.getElementById('viewport-frame');
-
-				//if (window.parent === window.top) {
-					// Only pointer lock outside of iframes
-					//ioq3.elementPointerLock = true;
-				//}
-				ioq3.elementPointerLock = true;
-
-				ioq3.exitHandler = function (err) {
-          console.log(err)
-				}
-
-				window.addEventListener('resize', resizeViewport);
-
-				// merge default args with query string args
-				//var args = ['+set', 'fs_cdn', 'content.quakejs.com:80', '+set', 'sv_master1', 'master.quakejs.com:27950']; //original args to list the servers from master.quakejs.com
-				//var args = ['+set', 'fs_cdn', 'content.quakejs.com:80', '+set', 'sv_master1', 'master.quakejs.com:27950', '+connect', 'YOUR_SERVER_HERE:27960']; //additional +connect arguement to connect to a specific server
-				var args = ['+set', 'fs_cdn', document.location.hostname + ':' + document.location.port, '+connect', document.location.hostname + ':27960']; //custom args list targeting a local content server and local game server both at the address 'quakejs'
-				args.push.apply(args, getQueryCommands());
-
-				ioq3.callMain(args);
-			};
-		</script>
-		<script type="module">
-				import * as q3 from "/hf/shenanigans/Events.js"
-
-				// window.q3 is invoked by trap_Javascript in the Q3 Client QVM code.
-				// It needs to be set on the window object in order to make it available to the Q3 QVM.
-				window.q3 = q3;
-
-				console.log("Module setup");
-				import { hookSDL } from "/hf/shenanigans/Utils.js"
-				SDL.receiveEvent = hookSDL(SDL.receiveEvent);
-		</script>
-	</head>
-	<body>
-
-		<div id="viewport-frame"></div>
-	</body>
+  </body>
 </html>
