@@ -24,15 +24,18 @@ docker compose up --build
 * `bot_skynet 1` - bots will work  to eliminate humans including teammates. Player deaths are attributed to MOD_SKYNET.
 * `g_acme_jumppad 1` - jumppad trajectories deviate slightly
 * `g_acme_weapons 1` - grenades and rockets explode more quickly (random) and have a larger blast radius
+* On death, players leave behind a gift (a rocket that hovers and explodes shortly after)
+
 
 ## Teleporter Malfunctions
 
 * Enabled per team, off by default: `g_blu_teleporter_malfunction` and `g_red_teleporter_malfunction`
 * Probability, 50% by default: `g_teleporter_malfunction_rate`
 
-Easter eggs?
+## Easter eggs? Oddities?
 
 * Pickup quad damage plays "Bow to my firewall!" sound plus a banner w/ bruce potter yelling into a microphone
+* Bighead (heads are 2x the size)
 
 # rcon judge commands
 
@@ -61,5 +64,3 @@ using `rcon judge <target> js <code>` where _code_ is below:
 * `q3.Hack()` - hack the client. Temporarily disrupt human input and causing player demise.
 * `q3.Crash(duration)` - Windows BSOD for _duration_ milliseconds. Disables human inputs while active.
 * `q3.Visual.Blur(duration)` - Blurs the game screen for _duration_ milliseconds.
-
-
