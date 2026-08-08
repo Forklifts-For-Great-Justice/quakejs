@@ -112,25 +112,22 @@
           let name = params.get("name");
           args = args.concat(["+seta", "name", name]);
 
-          try {
-            setTimeout(() => {
-              console.log(`Setting name: ${name}`);
-              var v = allocate(intArrayFromString('name'), 'i8', ALLOC_STACK);
-              var a = allocate(intArrayFromString(name), 'i8', ALLOC_STACK);
-              _Cvar_Set(v, a);
+          // Try multiple times to write to the config file on the client
+          let tries = 30;
+          let savename = function() {
+            console.log(`Setting name: ${name}`);
+            var v = allocate(intArrayFromString('name'), 'i8', ALLOC_STACK);
+            var a = allocate(intArrayFromString(name), 'i8', ALLOC_STACK);
+            _Cvar_Set(v, a);
 
-              //let config = new TextDecoder().decode(FS.readFile("/base/hf/q3config.cfg"))
-              //config = config.replace(/seta name.*/, "") + `seta name ${params.get("name")}`;
-              //FS.writeFile("/base/hf/q3config.cfg",
-                //new Uint8Array(new TextEncoder().encode(config)), 
-                //{ encoding: 'binary', flags: 'w', canOwn: true }
-              //);
-              //FS.syncfs((err) => console.err("Error writing q3config.cfg while adding name", err));
-            }, 500);
-          } catch (e) {
-            console.warn("Failed updating q3config with new name", e);
-          }
-        }
+            tries -= 1;
+            if (tries > 0) {
+              setTimeout(savename, 2000);
+            }
+          };
+
+          setTimeout(savename, 2000);
+      }
 
 				ioq3.callMain(args);
 			};
